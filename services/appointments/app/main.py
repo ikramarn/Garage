@@ -6,7 +6,8 @@ from pydantic import BaseModel
 
 class AppointmentCreate(BaseModel):
     customer_name: str
-    service_id: Optional[str] = None
+    service_ids: List[str] = []
+    total_price: float = 0.0
     scheduled_at: datetime
     notes: Optional[str] = None
 

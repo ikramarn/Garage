@@ -26,10 +26,20 @@ export default function Services() {
     e.preventDefault()
     setErr('')
     try {
-      await api('/api/appointments', { method: 'POST', body: JSON.stringify(booking) })
+      const svc = items.find(i => i.id === booking.service_id)
+      const payload = {
+        customer_name: booking.customer_name,
+        service_ids: booking.service_id ? [booking.service_id] : [],
+        total_price: svc ? Number(svc.price) : 0,
+        scheduled_at: booking.scheduled_at,
+      }
+      await api('/api/appointments', { method: 'POST', body: JSON.stringify(payload) })
       setBooking({ service_id: '', customer_name: '', scheduled_at: '' })
       alert('Appointment booked')
-    } catch (e) { setErr(e.message) }
+    } catch (e) {
+      if (String(e.message).includes('401')) setErr('Please login to make an appointment.')
+      else setErr(e.message)
+    }
   }
 
   const quickPick = (name) => {
