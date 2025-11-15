@@ -47,6 +47,10 @@ export default function InvoiceCreate() {
     setErr('')
     try {
       const items = rows.filter(r => r.included).map(r => ({ description: r.description, price: Number(r.price), service_id: r.service_id || undefined }))
+      if (items.length === 0) {
+        setErr('Please select at least one completed service or add an extra job.')
+        return
+      }
       const payload = {
         appointment_id: appointmentId,
         items,

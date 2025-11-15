@@ -81,7 +81,7 @@ export default function Appointments() {
           <div key={a.id} className="card p-4">
             <div className="font-medium">{a.customer_name}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              {new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${a.service_ids.length} service(s)` : '0 services'} · ${'{'}a.total_price || 0{'}'}
+              {new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${a.service_ids.length} service(s)` : '0 services'} · ${'{'}Number(a.total_price || 0).toFixed(2){'}'}
             </div>
             {user?.role === 'admin' && (
               <div className="flex gap-2 mt-2">
