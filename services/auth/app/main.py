@@ -1,12 +1,13 @@
 import os
 from datetime import datetime, timedelta
-from typing import Dict
 from uuid import uuid4
 
 import jwt
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from passlib.context import CryptContext
+from sqlalchemy import create_engine, String
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, sessionmaker
 
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
 ALGO = "HS256"
@@ -24,17 +25,28 @@ class Login(BaseModel):
 
 app = FastAPI(title="Auth Service")
 
-_USERS: Dict[str, Dict] = {}
+# Database setup
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    username: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
+    role: Mapped[str] = mapped_column(String(32))
+
+Base.metadata.create_all(bind=engine)
 
 # seed admin
-if "admin" not in _USERS:
-    uid = str(uuid4())
-    _USERS["admin"] = {
-        "id": uid,
-        "username": "admin",
-        "password_hash": pwd_ctx.hash("admin123"),
-        "role": "admin",
-    }
+with SessionLocal() as s:
+    existing = s.query(User).filter(User.username == "admin").first()
+    if not existing:
+        uid = str(uuid4())
+        s.add(User(id=uid, username="admin", password_hash=pwd_ctx.hash("admin123"), role="admin"))
+        s.commit()
 
 @app.get("/health")
 def health():
@@ -42,27 +54,26 @@ def health():
 
 @app.post("/register")
 def register(body: Register):
-    if body.username in _USERS:
-        raise HTTPException(400, "Username already exists")
-    uid = str(uuid4())
-    _USERS[body.username] = {
-        "id": uid,
-        "username": body.username,
-        "password_hash": pwd_ctx.hash(body.password),
-        "role": body.role or "customer",
-    }
-    return {"id": uid, "username": body.username}
+    with SessionLocal() as s:
+        existing = s.query(User).filter(User.username == body.username).first()
+        if existing:
+            raise HTTPException(400, "Username already exists")
+        uid = str(uuid4())
+        s.add(User(id=uid, username=body.username, password_hash=pwd_ctx.hash(body.password), role=body.role or "customer"))
+        s.commit()
+        return {"id": uid, "username": body.username}
 
 @app.post("/login")
 def login(body: Login):
-    user = _USERS.get(body.username)
-    if not user or not pwd_ctx.verify(body.password, user["password_hash"]):
-        raise HTTPException(401, "Invalid credentials")
+    with SessionLocal() as s:
+        u = s.query(User).filter(User.username == body.username).first()
+        if not u or not pwd_ctx.verify(body.password, u.password_hash):
+            raise HTTPException(401, "Invalid credentials")
     now = datetime.utcnow()
     payload = {
-        "sub": user["id"],
-        "username": user["username"],
-        "role": user["role"],
+        "sub": u.id,
+        "username": u.username,
+        "role": u.role,
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(hours=8)).timestamp()),
     }
