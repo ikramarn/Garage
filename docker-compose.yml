@@ -10,12 +10,15 @@ services:
       - INVOICES_URL=http://invoices:8000
       - CONTACTUS_URL=http://contactus:8000
       - CATALOG_URL=http://catalog:8000
+      - AUTH_URL=http://auth:8000
+      - JWT_SECRET=dev-secret-change-me
     depends_on:
       - appointments
       - payments
       - invoices
       - contactus
       - catalog
+      - auth
   appointments:
     build: ./services/appointments
     expose:
@@ -34,6 +37,10 @@ services:
       - "8000"
   catalog:
     build: ./services/catalog
+    expose:
+      - "8000"
+  auth:
+    build: ./services/auth
     expose:
       - "8000"
   frontend:

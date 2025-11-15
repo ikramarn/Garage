@@ -22,20 +22,26 @@ export default function ContactUs() {
   }
 
   return (
-    <div>
-      <h2>Contact Us</h2>
-      {err && <p style={{color:'crimson'}}>{err}</p>}
-      <form onSubmit={submit} style={{ display:'grid', gap:8, maxWidth: 420 }}>
-        <input required placeholder="Name" value={form.name} onChange={e=>setForm(f=>({...f, name:e.target.value}))} />
-        <input required type="email" placeholder="Email" value={form.email} onChange={e=>setForm(f=>({...f, email:e.target.value}))} />
-        <textarea required placeholder="Message" value={form.message} onChange={e=>setForm(f=>({...f, message:e.target.value}))} />
-        <button>Send</button>
-      </form>
-      <ul>
+    <div className="grid gap-6">
+      <div className="card p-6 max-w-xl">
+        <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+        {err && <p className="text-red-600 mb-3">{err}</p>}
+        <form onSubmit={submit} className="grid gap-3">
+          <input className="input" required placeholder="Name" value={form.name} onChange={e=>setForm(f=>({...f, name:e.target.value}))} />
+          <input className="input" required type="email" placeholder="Email" value={form.email} onChange={e=>setForm(f=>({...f, email:e.target.value}))} />
+          <textarea className="input" rows="4" required placeholder="Message" value={form.message} onChange={e=>setForm(f=>({...f, message:e.target.value}))} />
+          <button className="btn btn-primary w-fit">Send</button>
+        </form>
+      </div>
+      <div className="grid gap-3">
         {items.map(m => (
-          <li key={m.id}><b>{m.name}</b> ({m.email}) — {new Date(m.created_at).toLocaleString()}<br />{m.message}</li>
+          <div key={m.id} className="card p-4">
+            <div className="font-medium">{m.name} <span className="text-xs text-gray-500">({m.email})</span></div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(m.created_at).toLocaleString()}</div>
+            <p className="mt-1">{m.message}</p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }

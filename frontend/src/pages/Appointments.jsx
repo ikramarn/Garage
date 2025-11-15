@@ -22,20 +22,25 @@ export default function Appointments() {
   }
 
   return (
-    <div>
-      <h2>Appointments</h2>
-      {err && <p style={{color:'crimson'}}>{err}</p>}
-      <form onSubmit={submit} style={{ display:'grid', gap:8, maxWidth: 420 }}>
-        <input required placeholder="Customer name" value={form.customer_name} onChange={e=>setForm(f=>({...f, customer_name:e.target.value}))} />
-        <input placeholder="Service ID (optional)" value={form.service_id} onChange={e=>setForm(f=>({...f, service_id:e.target.value}))} />
-        <input required type="datetime-local" value={form.scheduled_at} onChange={e=>setForm(f=>({...f, scheduled_at:e.target.value}))} />
-        <button>Add</button>
-      </form>
-      <ul>
+    <div className="grid gap-6">
+      <div className="card p-6">
+        <h2 className="text-2xl font-semibold mb-4">Appointments</h2>
+        {err && <p className="text-red-600 mb-3">{err}</p>}
+        <form onSubmit={submit} className="grid gap-3 max-w-xl">
+          <input className="input" required placeholder="Customer name" value={form.customer_name} onChange={e=>setForm(f=>({...f, customer_name:e.target.value}))} />
+          <input className="input" placeholder="Service ID (optional)" value={form.service_id} onChange={e=>setForm(f=>({...f, service_id:e.target.value}))} />
+          <input className="input" required type="datetime-local" value={form.scheduled_at} onChange={e=>setForm(f=>({...f, scheduled_at:e.target.value}))} />
+          <button className="btn btn-primary w-fit">Add appointment</button>
+        </form>
+      </div>
+      <div className="grid gap-3">
         {items.map(a => (
-          <li key={a.id}><b>{a.customer_name}</b> — {new Date(a.scheduled_at).toLocaleString()} {a.service_id && `(service ${a.service_id})`}</li>
+          <div key={a.id} className="card p-4">
+            <div className="font-medium">{a.customer_name}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(a.scheduled_at).toLocaleString()} {a.service_id && `(service ${a.service_id})`}</div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }

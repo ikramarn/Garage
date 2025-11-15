@@ -3,6 +3,7 @@ from typing import Dict
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
+import jwt
 
 SERVICE_MAP: Dict[str, str] = {
     "appointments": os.getenv("APPOINTMENTS_URL", "http://localhost:8101"),
@@ -10,7 +11,11 @@ SERVICE_MAP: Dict[str, str] = {
     "invoices": os.getenv("INVOICES_URL", "http://localhost:8103"),
     "contactus": os.getenv("CONTACTUS_URL", "http://localhost:8104"),
     "services": os.getenv("CATALOG_URL", "http://localhost:8105"),
+    "auth": os.getenv("AUTH_URL", "http://localhost:8110"),
 }
+
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
+JWT_ALGO = "HS256"
 
 app = FastAPI(title="Gateway")
 
@@ -26,6 +31,21 @@ app.add_middleware(
 async def health():
     return {"status": "ok", "services": list(SERVICE_MAP.keys())}
 
+def _decode_bearer(authorization: str | None):
+    if not authorization or not authorization.lower().startswith("bearer "):
+        return None
+    token = authorization.split(" ", 1)[1]
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
+    except Exception:
+        return None
+
+def _needs_auth(service: str, path_tail: str) -> bool:
+    # protect invoices service; allow auth service public; others open
+    if service == "invoices":
+        return True
+    return False
+
 async def _proxy(request: Request, service: str, tail: str = "") -> Response:
     base_url = SERVICE_MAP.get(service)
     if not base_url:
@@ -37,6 +57,18 @@ async def _proxy(request: Request, service: str, tail: str = "") -> Response:
     # Prepare request data
     headers = dict(request.headers)
     headers.pop("host", None)
+
+    # auth handling
+    payload = _decode_bearer(request.headers.get("authorization"))
+    if _needs_auth(service, tail):
+        if not payload:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        headers["x-user-id"] = str(payload.get("sub"))
+        headers["x-user-role"] = str(payload.get("role"))
+    elif payload:
+        # forward identity if available (even when not required)
+        headers["x-user-id"] = str(payload.get("sub"))
+        headers["x-user-role"] = str(payload.get("role"))
 
     try:
         body = await request.body()
