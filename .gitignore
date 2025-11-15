@@ -1,0 +1,22 @@
+# Node
+node_modules/
+dist/
+.vite/
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+
+# Env
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+**/.python_packages/
+**/.mypy_cache/
+**/.ruff_cache/
