@@ -1,13 +1,21 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
+class InvoiceItem(BaseModel):
+    description: str
+    price: float
+    service_id: Optional[str] = None
+
 class InvoiceCreate(BaseModel):
     appointment_id: str
-    amount: float
+    amount: Optional[float] = None
     currency: str = "USD"
+    items: List[InvoiceItem] = []
+    customer_name: Optional[str] = None
+    owner_id: Optional[str] = None
 
 class Invoice(InvoiceCreate):
     id: str
@@ -32,11 +40,23 @@ def list_invoices(x_user_id: str | None = Header(default=None), x_user_role: str
     return [inv for inv in _STORE.values() if inv.owner_id == x_user_id]
 
 @app.post("/invoices", response_model=Invoice, status_code=201)
-def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None)):
+def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     if not x_user_id:
         raise HTTPException(401, "Unauthorized")
     iid = str(uuid4())
-    invoice = Invoice(id=iid, issued_at=datetime.utcnow(), owner_id=x_user_id, **payload.model_dump())
+    # Admin may create invoice for a customer
+    target_owner = payload.owner_id if x_user_role == "admin" and payload.owner_id else x_user_id
+    amount = payload.amount if payload.amount is not None else sum(max(0.0, i.price) for i in payload.items)
+    invoice = Invoice(
+        id=iid,
+        issued_at=datetime.utcnow(),
+        owner_id=target_owner,
+        appointment_id=payload.appointment_id,
+        amount=amount,
+        currency=payload.currency,
+        items=payload.items,
+        customer_name=payload.customer_name,
+    )
     _STORE[iid] = invoice
     return invoice
 
