@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Optional
 from uuid import uuid4
 from datetime import datetime
@@ -5,7 +6,10 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import Response
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+from reportlab.lib.units import mm
 from pydantic import BaseModel
 
 class InvoiceItem(BaseModel):
@@ -81,57 +85,99 @@ def get_invoice_pdf(invoice_id: str, x_user_id: str | None = Header(default=None
     if not (x_user_role == "admin" or inv.owner_id == x_user_id):
         raise HTTPException(403, "Forbidden")
 
-    # Generate a simple PDF in-memory
+    # Company details from env (with safe defaults)
+    company_name = os.getenv("COMPANY_NAME", "Garage Ltd.")
+    company_address = os.getenv("COMPANY_ADDRESS", "123 Service Lane\nAuto City, AC 12345\n+1 (555) 123-4567")
+    company_logo_path = os.getenv("COMPANY_LOGO_PATH")  # optional
+
     buffer = BytesIO()
-    width, height = A4
-    c = canvas.Canvas(buffer, pagesize=A4)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=18*mm,
+        leftMargin=18*mm,
+        topMargin=18*mm,
+        bottomMargin=18*mm,
+    )
 
-    # Header
-    c.setFont("Helvetica-Bold", 18)
-    c.drawString(40, height - 60, "Invoice")
-    c.setFont("Helvetica", 10)
-    c.drawString(40, height - 80, f"Invoice ID: {inv.id}")
-    c.drawString(40, height - 95, f"Date: {inv.issued_at.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    styles = getSampleStyleSheet()
+    story = []
 
-    # Billed to
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, height - 125, "Billed To:")
-    c.setFont("Helvetica", 11)
-    c.drawString(40, height - 140, inv.customer_name or "Customer")
+    # Header with optional logo and company details
+    header_cells = []
+    # Left: logo + company name
+    left_flow = []
+    if company_logo_path and os.path.exists(company_logo_path):
+        try:
+            img = Image(company_logo_path, width=30*mm, height=30*mm)
+            left_flow.append(img)
+            left_flow.append(Spacer(1, 4))
+        except Exception:
+            pass
+    left_flow.append(Paragraph(f"<b>{company_name}</b>", styles['Title']))
+    left_flow.append(Paragraph(company_address.replace('\n', '<br/>'), styles['Normal']))
+
+    # Right: invoice metadata
+    meta = [
+        [Paragraph("<b>Invoice</b>", styles['Heading2'])],
+        [Paragraph(f"Invoice ID: {inv.id}", styles['Normal'])],
+        [Paragraph(f"Date: {inv.issued_at.strftime('%Y-%m-%d %H:%M:%S')} UTC", styles['Normal'])],
+        [Paragraph(f"Status: {inv.status}", styles['Normal'])],
+    ]
+    meta_table = Table(meta, colWidths=[70*mm])
+    header_table = Table(
+        [[left_flow, meta_table]],
+        colWidths=[100*mm, 70*mm],
+        hAlign='LEFT'
+    )
+    story.append(header_table)
+    story.append(Spacer(1, 12))
+
+    # Billed To block
+    billed_to = inv.customer_name or "Customer"
+    two_col = Table(
+        [
+            [Paragraph('<b>Billed To</b>', styles['Heading4']), Paragraph('<b>Appointment</b>', styles['Heading4'])],
+            [Paragraph(billed_to, styles['Normal']), Paragraph(inv.appointment_id, styles['Normal'])],
+        ],
+        colWidths=[100*mm, 70*mm],
+    )
+    story.append(two_col)
+    story.append(Spacer(1, 12))
 
     # Items table
-    y = height - 180
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(40, y, "Description")
-    c.drawRightString(width - 40, y, "Price")
-    y -= 10
-    c.line(40, y, width - 40, y)
-    y -= 20
-    c.setFont("Helvetica", 11)
-    total = inv.amount if inv.amount is not None else sum(max(0.0, i.price) for i in inv.items)
-    for item in (inv.items or []):
-        c.drawString(40, y, item.description)
-        c.drawRightString(width - 40, y, f"$ {float(item.price):.2f}")
-        y -= 18
-        if y < 80:
-            # footer and new page
-            c.showPage()
-            y = height - 60
-            c.setFont("Helvetica", 11)
+    items = list(inv.items or [])
+    total = inv.amount if inv.amount is not None else sum(max(0.0, i.price) for i in items)
+    data = [["Description", "Price"]]
+    if items:
+        for it in items:
+            data.append([it.description, f"$ {float(it.price):.2f}"])
+    else:
+        data.append(["Custom Amount", f"$ {float(total):.2f}"])
 
-    # Total
-    y = max(y, 120)
-    c.setFont("Helvetica-Bold", 12)
-    c.drawRightString(width - 40, y, f"Total: $ {float(total):.2f} {inv.currency}")
+    data.append([Paragraph("<b>Total</b>", styles['Normal']), Paragraph(f"<b>$ {float(total):.2f} {inv.currency}</b>", styles['Normal'])])
+
+    table = Table(data, colWidths=[130*mm, 40*mm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#f1f5f9')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.black),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('ALIGN', (1,1), (1,-1), 'RIGHT'),
+        ('LINEBELOW', (0,0), (-1,0), 0.5, colors.HexColor('#cbd5e1')),
+        ('GRID', (0,0), (-1,-2), 0.25, colors.HexColor('#e5e7eb')),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor('#e2e8f0')),
+        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+        ('LINEABOVE', (0,-1), (-1,-1), 0.75, colors.HexColor('#94a3b8')),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+    ]))
+    story.append(table)
+    story.append(Spacer(1, 18))
 
     # Footer
-    c.setFont("Helvetica", 9)
-    c.drawString(40, 50, f"Appointment: {inv.appointment_id}")
-    c.drawRightString(width - 40, 50, "Thank you for your business")
+    story.append(Paragraph("Thank you for your business", styles['Italic']))
 
-    c.showPage()
-    c.save()
-
+    doc.build(story)
     pdf_bytes = buffer.getvalue()
     buffer.close()
     return Response(content=pdf_bytes, media_type="application/pdf", headers={
