@@ -90,6 +90,4 @@ pytest services/appointments/tests
 - Why FastAPI instead of Django? FastAPI is lightweight and ideal for small, independent services. Django would suit monolith or fewer services.
 - React vs Vue? React is chosen here due to ecosystem and tooling. Swapping to Vue + Vite is straightforward if preferred.
 
-## On enabling "GPT-5.1-Codex (Preview)"
 
-That toggle can’t be enabled from this codebase or by me in your editor; it’s controlled by your organization’s admin/preview access. If you share where you want it enabled (e.g., in a specific product/tenant), I can add the app-side feature flag wiring.

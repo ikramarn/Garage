@@ -69,20 +69,8 @@ async def _proxy(request: Request, service: str, tail: str = "") -> Response:
     if not base_url:
         raise HTTPException(status_code=404, detail=f"Unknown service: {service}")
 
-    # Map API paths to underlying service resource paths.
-    # If no tail provided, use default root tail for the service when available.
-    # If a tail is provided and doesn't already start with the default tail (e.g., 'invoices'),
-    # prefix it so /api/invoices/{id} -> /invoices/{id}. Allow special service paths like openapi/docs.
-    default_tail = DEFAULT_ROOT_TAIL.get(service, "")
-    if not tail:
-        effective_tail = default_tail
-    else:
-        if default_tail and not tail.startswith(default_tail) and not (
-            tail.startswith("openapi.json") or tail.startswith("docs") or tail.startswith("redoc") or tail.startswith("health")
-        ):
-            effective_tail = f"{default_tail}/" + tail.lstrip("/")
-        else:
-            effective_tail = tail
+    # If no tail provided, use default root tail for the service when available
+    effective_tail = tail or DEFAULT_ROOT_TAIL.get(service, "")
     url = base_url.rstrip("/") + "/" + effective_tail.lstrip("/")
     method = request.method
 
