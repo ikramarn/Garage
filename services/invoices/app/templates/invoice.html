@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice {{ invoice.id }}</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    body { font-family: DejaVu Sans, Arial, sans-serif; color: #0f172a; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .company { max-width: 60%; }
+    .logo { max-height: 80px; margin-bottom: 8px; }
+    h1 { margin: 0 0 4px 0; font-size: 24px; }
+    h2 { margin: 0 0 8px 0; font-size: 18px; }
+    .muted { color: #475569; font-size: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+    .card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
+    thead th { text-align: left; background: #f1f5f9; }
+    tfoot td { font-weight: bold; background: #e2e8f0; }
+    .right { text-align: right; }
+    .footer { margin-top: 18px; font-style: italic; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="company">
+      {% if company_logo %}<img class="logo" src="{{ company_logo }}" alt="logo" />{% endif %}
+      <h1>{{ company_name }}</h1>
+      <div class="muted">{{ company_address|replace('\n','<br/>')|safe }}</div>
+    </div>
+    <div>
+      <h2>Invoice</h2>
+      <div class="muted">Invoice ID: {{ invoice.id }}</div>
+      <div class="muted">Date: {{ invoice.issued_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</div>
+      <div class="muted">Status: {{ invoice.status }}</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="muted">Billed To</div>
+      <div>{{ invoice.customer_name or 'Customer' }}</div>
+    </div>
+    <div class="card">
+      <div class="muted">Appointment</div>
+      <div>{{ invoice.appointment_id }}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th class="right">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if invoice.items and invoice.items|length > 0 %}
+        {% for it in invoice.items %}
+          <tr>
+            <td>{{ it.description }}</td>
+            <td class="right">$ {{ '%.2f'|format(it.price|float) }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td>Custom Amount</td>
+          <td class="right">$ {{ '%.2f'|format(total|float) }}</td>
+        </tr>
+      {% endif %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="right">$ {{ '%.2f'|format(total|float) }} {{ invoice.currency }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="footer">Thank you for your business</div>
+</body>
+</html>
