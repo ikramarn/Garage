@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 
 import { useAuth } from '../auth/AuthContext'
+import { Link } from 'react-router-dom'
 
 export default function Invoices() {
   const [items, setItems] = useState([])
@@ -45,6 +46,7 @@ export default function Invoices() {
               <div className="text-sm text-gray-600 dark:text-gray-300">for appt {inv.appointment_id}</div>
             </div>
             <span className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{inv.status}</span>
+            <Link className="btn btn-outline ml-3" to={`/invoices/${inv.id}`}>View</Link>
           </div>
         ))}
       </div>

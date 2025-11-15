@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import Appointments from './pages/Appointments'
 import Payments from './pages/Payments'
 import Invoices from './pages/Invoices'
+import InvoiceCreate from './pages/InvoiceCreate'
+import InvoiceDetail from './pages/InvoiceDetail'
 import ContactUs from './pages/ContactUs'
 import Services from './pages/Services'
 import Login from './pages/Login'
@@ -28,6 +30,8 @@ export default function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/invoices" element={<PrivateRoute><Invoices /></PrivateRoute>} />
+            <Route path="/invoices/new/:appointmentId" element={<PrivateRoute roles={["admin"]}><InvoiceCreate /></PrivateRoute>} />
+            <Route path="/invoices/:invoiceId" element={<PrivateRoute><InvoiceDetail /></PrivateRoute>} />
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/services" element={<Services />} />
             <Route path="/login" element={<Login />} />
