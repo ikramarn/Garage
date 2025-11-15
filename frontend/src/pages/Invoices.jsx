@@ -12,7 +12,7 @@ export default function Invoices() {
   const load = async () => {
     try { setItems(await api('/api/invoices')) } catch (e) { setErr(e.message) }
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [token])
 
   const submit = async (e) => {
     e.preventDefault()

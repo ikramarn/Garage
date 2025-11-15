@@ -28,7 +28,10 @@ export default function Nav() {
               <button className="btn btn-outline" onClick={logout}>Logout</button>
             </>
           ) : (
-            <NavLink to="/login" className="btn btn-primary">Login</NavLink>
+            <div className="flex items-center gap-2">
+              <NavLink to="/signup" className="btn btn-outline">Sign up</NavLink>
+              <NavLink to="/login" className="btn btn-primary">Login</NavLink>
+            </div>
           )}
         </div>
       </div>

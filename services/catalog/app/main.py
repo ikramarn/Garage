@@ -15,8 +15,15 @@ app = FastAPI(title="Services Catalog Service")
 
 _STORE: Dict[str, ServiceItem] = {}
 
-# seed a few
-for name, price in [("Oil Change", 49.99), ("Tire Rotation", 29.99), ("Brake Inspection", 39.99)]:
+# seed a few (including requested booking services)
+for name, price in [
+    ("Book an MOT", 60.00),
+    ("Book a service", 120.00),
+    ("Book a repair work", 90.00),
+    ("Oil Change", 49.99),
+    ("Tire Rotation", 29.99),
+    ("Brake Inspection", 39.99),
+]:
     sid = str(uuid4())
     _STORE[sid] = ServiceItem(id=sid, name=name, description=f"{name} service", price=price)
 

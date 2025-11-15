@@ -8,6 +8,7 @@ import ContactUs from './pages/ContactUs'
 import Services from './pages/Services'
 import Login from './pages/Login'
 import { AuthProvider, useAuth } from './auth/AuthContext'
+import Signup from './pages/Signup'
 
 function PrivateRoute({ children, roles }) {
   const { user } = useAuth()
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/services" element={<Services />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </main>
       </div>

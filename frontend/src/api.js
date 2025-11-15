@@ -1,6 +1,8 @@
 export async function api(path, options = {}) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : ''
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {}
   const res = await fetch(path, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers: { 'Content-Type': 'application/json', ...authHeader, ...(options.headers || {}) },
     ...options,
   })
   if (!res.ok) {
