@@ -1,5 +1,5 @@
 import os
-import os
+import time
 from typing import List, Optional
 from uuid import uuid4
 from datetime import datetime
@@ -7,8 +7,9 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import Response
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
-from sqlalchemy import create_engine, String, Float, DateTime, JSON
+from sqlalchemy import create_engine, String, Float, DateTime, JSON, text
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, sessionmaker
+from sqlalchemy.exc import OperationalError
 from pydantic import BaseModel
 
 class InvoiceItem(BaseModel):
@@ -34,7 +35,7 @@ app = FastAPI(title="Invoices Service")
 
 # DB setup
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
@@ -50,6 +51,20 @@ class InvoiceRow(Base):
     status: Mapped[str] = mapped_column(String(32))
     issued_at: Mapped[datetime] = mapped_column(DateTime)
 
+def _wait_for_db(max_attempts: int = 30, delay_sec: float = 1.0) -> None:
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return
+        except OperationalError:
+            attempts += 1
+            time.sleep(delay_sec)
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+
+_wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 def to_model(row: InvoiceRow) -> Invoice:

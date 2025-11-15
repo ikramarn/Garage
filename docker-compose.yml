@@ -9,6 +9,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U garage -d garage"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   gateway:
     build: ./gateway
     ports:
@@ -35,7 +40,8 @@ services:
     expose:
       - "8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   payments:
     build: ./services/payments
     expose:
@@ -47,7 +53,8 @@ services:
     expose:
       - "8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   contactus:
     build: ./services/contactus
     expose:
@@ -63,6 +70,9 @@ services:
       - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
       - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
   frontend:
     build:
       context: ./frontend

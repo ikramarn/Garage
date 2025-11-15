@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime, timedelta
 from uuid import uuid4
 
@@ -6,8 +7,9 @@ import jwt
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from passlib.context import CryptContext
-from sqlalchemy import create_engine, String
+from sqlalchemy import create_engine, String, text
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, sessionmaker
+from sqlalchemy.exc import OperationalError
 
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
 ALGO = "HS256"
@@ -27,7 +29,7 @@ app = FastAPI(title="Auth Service")
 
 # Database setup
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
@@ -38,6 +40,21 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(32))
 
+def _wait_for_db(max_attempts: int = 30, delay_sec: float = 1.0) -> None:
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return
+        except OperationalError:
+            attempts += 1
+            time.sleep(delay_sec)
+    # Final attempt (let it raise if still failing)
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+
+_wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 # seed admin

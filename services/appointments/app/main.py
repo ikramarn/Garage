@@ -1,11 +1,13 @@
 import os
+import time
 from typing import List, Optional
 from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
-from sqlalchemy import create_engine, String, DateTime, Float, JSON, Text
+from sqlalchemy import create_engine, String, DateTime, Float, JSON, Text, text
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, sessionmaker
+from sqlalchemy.exc import OperationalError
 
 class AppointmentCreate(BaseModel):
     customer_name: str
@@ -22,7 +24,7 @@ app = FastAPI(title="Appointments Service")
 
 # DB setup
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
@@ -36,6 +38,20 @@ class AppointmentRow(Base):
     scheduled_at: Mapped[datetime] = mapped_column(DateTime)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
+def _wait_for_db(max_attempts: int = 30, delay_sec: float = 1.0) -> None:
+    attempts = 0
+    while attempts < max_attempts:
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return
+        except OperationalError:
+            attempts += 1
+            time.sleep(delay_sec)
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+
+_wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 def to_model(row: AppointmentRow) -> Appointment:
