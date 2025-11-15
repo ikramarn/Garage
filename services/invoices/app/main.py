@@ -1,17 +1,14 @@
 import os
-from typing import List, Dict, Optional
+import os
+from typing import List, Optional
 from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import Response
-from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-from reportlab.lib.units import mm
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
+from sqlalchemy import create_engine, String, Float, DateTime, JSON
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, sessionmaker
 from pydantic import BaseModel
 
 class InvoiceItem(BaseModel):
@@ -35,7 +32,38 @@ class Invoice(InvoiceCreate):
 
 app = FastAPI(title="Invoices Service")
 
-_STORE: Dict[str, Invoice] = {}
+# DB setup
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Base = declarative_base()
+
+class InvoiceRow(Base):
+    __tablename__ = "invoices"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    appointment_id: Mapped[str] = mapped_column(String(64))
+    amount: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    currency: Mapped[str] = mapped_column(String(16))
+    items: Mapped[List[dict]] = mapped_column(JSON)
+    customer_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    owner_id: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32))
+    issued_at: Mapped[datetime] = mapped_column(DateTime)
+
+Base.metadata.create_all(bind=engine)
+
+def to_model(row: InvoiceRow) -> Invoice:
+    return Invoice(
+        id=row.id,
+        appointment_id=row.appointment_id,
+        amount=row.amount,
+        currency=row.currency,
+        items=[InvoiceItem(**it) for it in (row.items or [])],
+        customer_name=row.customer_name,
+        owner_id=row.owner_id,
+        status=row.status,
+        issued_at=row.issued_at,
+    )
 
 @app.get("/health")
 def health():
@@ -45,9 +73,12 @@ def health():
 def list_invoices(x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     if not x_user_id:
         raise HTTPException(401, "Unauthorized")
-    if x_user_role == "admin":
-        return list(_STORE.values())
-    return [inv for inv in _STORE.values() if inv.owner_id == x_user_id]
+    with SessionLocal() as s:
+        if x_user_role == "admin":
+            rows = s.query(InvoiceRow).all()
+        else:
+            rows = s.query(InvoiceRow).filter(InvoiceRow.owner_id == x_user_id).all()
+        return [to_model(r) for r in rows]
 
 @app.post("/invoices", response_model=Invoice, status_code=201)
 def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
@@ -57,31 +88,38 @@ def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(defaul
     # Admin may create invoice for a customer
     target_owner = payload.owner_id if x_user_role == "admin" and payload.owner_id else x_user_id
     amount = payload.amount if payload.amount is not None else sum(max(0.0, i.price) for i in payload.items)
-    invoice = Invoice(
-        id=iid,
-        issued_at=datetime.utcnow(),
-        owner_id=target_owner,
-        appointment_id=payload.appointment_id,
-        amount=amount,
-        currency=payload.currency,
-        items=payload.items,
-        customer_name=payload.customer_name,
-    )
-    _STORE[iid] = invoice
-    return invoice
+    with SessionLocal() as s:
+        row = InvoiceRow(
+            id=iid,
+            issued_at=datetime.utcnow(),
+            owner_id=target_owner,
+            appointment_id=payload.appointment_id,
+            amount=amount,
+            currency=payload.currency,
+            items=[i.model_dump() for i in payload.items or []],
+            customer_name=payload.customer_name,
+            status="unpaid",
+        )
+        s.add(row)
+        s.commit()
+        s.refresh(row)
+        return to_model(row)
 
 @app.get("/invoices/{invoice_id}", response_model=Invoice)
 def get_invoice(invoice_id: str, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
-    inv = _STORE.get(invoice_id)
-    if not inv:
-        raise HTTPException(404, "Not found")
-    if x_user_role == "admin" or inv.owner_id == x_user_id:
-        return inv
-    raise HTTPException(403, "Forbidden")
+    with SessionLocal() as s:
+        row = s.query(InvoiceRow).get(invoice_id)
+        if not row:
+            raise HTTPException(404, "Not found")
+        if x_user_role == "admin" or row.owner_id == x_user_id:
+            return to_model(row)
+        raise HTTPException(403, "Forbidden")
 
 @app.get("/invoices/{invoice_id}/pdf")
 def get_invoice_pdf(invoice_id: str, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
-    inv = _STORE.get(invoice_id)
+    with SessionLocal() as s:
+        row = s.query(InvoiceRow).get(invoice_id)
+    inv = to_model(row) if row else None
     if not inv:
         raise HTTPException(404, "Not found")
     if not (x_user_role == "admin" or inv.owner_id == x_user_id):
