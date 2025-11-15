@@ -24,7 +24,7 @@ def health():
     return {"status": "ok"}
 
 @app.get("/invoices", response_model=List[Invoice])
-def list_invoices(x_user_id: str | None = Header(default=None, convert_underscores=False), x_user_role: str | None = Header(default=None, convert_underscores=False)):
+def list_invoices(x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     if not x_user_id:
         raise HTTPException(401, "Unauthorized")
     if x_user_role == "admin":
@@ -32,7 +32,7 @@ def list_invoices(x_user_id: str | None = Header(default=None, convert_underscor
     return [inv for inv in _STORE.values() if inv.owner_id == x_user_id]
 
 @app.post("/invoices", response_model=Invoice, status_code=201)
-def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None, convert_underscores=False)):
+def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None)):
     if not x_user_id:
         raise HTTPException(401, "Unauthorized")
     iid = str(uuid4())
@@ -41,7 +41,7 @@ def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(defaul
     return invoice
 
 @app.get("/invoices/{invoice_id}", response_model=Invoice)
-def get_invoice(invoice_id: str, x_user_id: str | None = Header(default=None, convert_underscores=False), x_user_role: str | None = Header(default=None, convert_underscores=False)):
+def get_invoice(invoice_id: str, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     inv = _STORE.get(invoice_id)
     if not inv:
         raise HTTPException(404, "Not found")

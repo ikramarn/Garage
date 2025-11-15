@@ -14,6 +14,17 @@ SERVICE_MAP: Dict[str, str] = {
     "auth": os.getenv("AUTH_URL", "http://localhost:8110"),
 }
 
+# When no path tail is provided (e.g., GET /api/invoices), map to a sensible
+# default resource path for that service (e.g., /invoices).
+DEFAULT_ROOT_TAIL: Dict[str, str] = {
+    "appointments": "appointments",
+    "payments": "payments",
+    "invoices": "invoices",
+    "contactus": "contactus",
+    "services": "services",
+    # Note: do NOT set a default for 'auth' to avoid mapping /api/auth -> /auth
+}
+
 JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
 JWT_ALGO = "HS256"
 
@@ -30,6 +41,13 @@ app.add_middleware(
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "services": list(SERVICE_MAP.keys())}
+
+@app.get("/whoami")
+async def whoami(request: Request):
+    payload = _decode_bearer(request.headers.get("authorization"))
+    if not payload:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return payload
 
 def _decode_bearer(authorization: str | None):
     if not authorization or not authorization.lower().startswith("bearer "):
@@ -51,7 +69,9 @@ async def _proxy(request: Request, service: str, tail: str = "") -> Response:
     if not base_url:
         raise HTTPException(status_code=404, detail=f"Unknown service: {service}")
 
-    url = base_url.rstrip("/") + "/" + tail.lstrip("/")
+    # If no tail provided, use default root tail for the service when available
+    effective_tail = tail or DEFAULT_ROOT_TAIL.get(service, "")
+    url = base_url.rstrip("/") + "/" + effective_tail.lstrip("/")
     method = request.method
 
     # Prepare request data

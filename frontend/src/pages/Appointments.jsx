@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { useAuth } from '../auth/AuthContext'
 
 export default function Appointments() {
+  const { user } = useAuth()
   const [items, setItems] = useState([])
   const [form, setForm] = useState({ customer_name: '', service_id: '', scheduled_at: '' })
   const [err, setErr] = useState('')
 
   const load = async () => {
+    if (!user) { setItems([]); return }
     try { setItems(await api('/api/appointments')) } catch (e) { setErr(e.message) }
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [user])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -21,11 +24,20 @@ export default function Appointments() {
     } catch (e) { setErr(e.message) }
   }
 
+  const remove = async (id) => {
+    setErr('')
+    try {
+      await api(`/api/appointments/${id}`, { method: 'DELETE' })
+      load()
+    } catch (e) { setErr(e.message) }
+  }
+
   return (
     <div className="grid gap-6">
       <div className="card p-6">
         <h2 className="text-2xl font-semibold mb-4">Appointments</h2>
         {err && <p className="text-red-600 mb-3">{err}</p>}
+        {!user && <p className="text-gray-600 dark:text-gray-300 mb-3">Please login to view and manage your appointments.</p>}
         <form onSubmit={submit} className="grid gap-3 max-w-xl">
           <input className="input" required placeholder="Customer name" value={form.customer_name} onChange={e=>setForm(f=>({...f, customer_name:e.target.value}))} />
           <input className="input" placeholder="Service ID (optional)" value={form.service_id} onChange={e=>setForm(f=>({...f, service_id:e.target.value}))} />
@@ -38,6 +50,9 @@ export default function Appointments() {
           <div key={a.id} className="card p-4">
             <div className="font-medium">{a.customer_name}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(a.scheduled_at).toLocaleString()} {a.service_id && `(service ${a.service_id})`}</div>
+            {user?.role === 'admin' && (
+              <button className="btn btn-outline mt-2" onClick={() => remove(a.id)}>Delete</button>
+            )}
           </div>
         ))}
       </div>

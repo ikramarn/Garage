@@ -40,7 +40,7 @@ if "admin" not in _USERS:
 def health():
     return {"status": "ok"}
 
-@app.post("/auth/register")
+@app.post("/register")
 def register(body: Register):
     if body.username in _USERS:
         raise HTTPException(400, "Username already exists")
@@ -53,7 +53,7 @@ def register(body: Register):
     }
     return {"id": uid, "username": body.username}
 
-@app.post("/auth/login")
+@app.post("/login")
 def login(body: Login):
     user = _USERS.get(body.username)
     if not user or not pwd_ctx.verify(body.password, user["password_hash"]):
