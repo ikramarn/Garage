@@ -1,4 +1,14 @@
 services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=garage
+      - POSTGRES_PASSWORD=garage
+      - POSTGRES_DB=garage
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
   gateway:
     build: ./gateway
     ports:
@@ -20,16 +30,24 @@ services:
       - auth
   appointments:
     build: ./services/appointments
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
       - "8000"
+    depends_on:
+      - db
   payments:
     build: ./services/payments
     expose:
       - "8000"
   invoices:
     build: ./services/invoices
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
       - "8000"
+    depends_on:
+      - db
   contactus:
     build: ./services/contactus
     expose:
@@ -42,6 +60,7 @@ services:
     build: ./services/auth
     environment:
       - JWT_SECRET=dev-secret-change-me
+      - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
       - "8000"
   frontend:
@@ -54,3 +73,5 @@ services:
       - VITE_PROXY_TARGET=http://gateway:8080
     depends_on:
       - gateway
+volumes:
+  pgdata:
