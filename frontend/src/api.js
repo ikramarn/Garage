@@ -10,5 +10,7 @@ export async function api(path, options = {}) {
     throw new Error(`${res.status} ${res.statusText}: ${text}`)
   }
   const ct = res.headers.get('content-type') || ''
-  return ct.includes('application/json') ? res.json() : res.text()
+  if (ct.includes('application/json')) return res.json()
+  if (ct.includes('application/pdf')) return res.blob()
+  return res.text()
 }

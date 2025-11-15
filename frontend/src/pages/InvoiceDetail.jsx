@@ -17,6 +17,22 @@ export default function InvoiceDetail() {
     window.print()
   }
 
+  const downloadPdf = async () => {
+    try {
+      const blob = await api(`/api/invoices/${invoiceId}/pdf`)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice-${invoiceId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (e) {
+      setErr(e.message)
+    }
+  }
+
   if (err) return <p className="text-red-600">{err}</p>
   if (!inv) return <p>Loading…</p>
 
@@ -72,6 +88,7 @@ export default function InvoiceDetail() {
         </div>
         <div className="mt-6 flex gap-2 no-print">
           <button className="btn btn-outline" onClick={printInvoice}>Print / Download PDF</button>
+          <button className="btn btn-primary" onClick={downloadPdf}>Download PDF (server)</button>
         </div>
       </div>
     </div>
