@@ -59,7 +59,7 @@ services:
   frontend:
     image: ghcr.io/ikramarn/garage-frontend:latest
     ports:
-      - "5173:5173"
+      - "80:5173"
     environment:
       - VITE_PROXY_TARGET=http://gateway:8080
     depends_on:
