@@ -1,0 +1,66 @@
+services:
+  gateway:
+    image: ghcr.io/ikramarn/garage-gateway:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - APPOINTMENTS_URL=http://appointments:8000
+      - PAYMENTS_URL=http://payments:8000
+      - INVOICES_URL=http://invoices:8000
+      - CONTACTUS_URL=http://contactus:8000
+      - CATALOG_URL=http://catalog:8000
+      - AUTH_URL=http://auth:8000
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - appointments
+      - payments
+      - invoices
+      - contactus
+      - catalog
+      - auth
+
+  auth:
+    image: ghcr.io/ikramarn/garage-auth:latest
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    expose:
+      - "8000"
+
+  appointments:
+    image: ghcr.io/ikramarn/garage-appointments:latest
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    expose:
+      - "8000"
+
+  invoices:
+    image: ghcr.io/ikramarn/garage-invoices:latest
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    expose:
+      - "8000"
+
+  payments:
+    image: ghcr.io/ikramarn/garage-payments:latest
+    expose:
+      - "8000"
+
+  contactus:
+    image: ghcr.io/ikramarn/garage-contactus:latest
+    expose:
+      - "8000"
+
+  catalog:
+    image: ghcr.io/ikramarn/garage-catalog:latest
+    expose:
+      - "8000"
+
+  frontend:
+    image: ghcr.io/ikramarn/garage-frontend:latest
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_PROXY_TARGET=http://gateway:8080
+    depends_on:
+      - gateway
