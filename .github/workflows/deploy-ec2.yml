@@ -55,7 +55,7 @@ jobs:
           source: ".env"
           target: "/opt/garage/"
 
-      - name: Remote deploy (login, pull, up)
+      - name: Remote deploy (install Docker, login, pull, up)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -63,16 +63,36 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            sudo apt-get update -y
-            # Install Docker if not present
+            # Install Docker if not present (works for most distros)
             if ! command -v docker >/dev/null 2>&1; then
-              curl -fsSL https://get.docker.com | sh
+              curl -fsSL https://get.docker.com | sudo sh
+              sudo systemctl enable --now docker || true
               sudo usermod -aG docker $USER || true
             fi
-            # Install compose plugin if needed
+
+            # Ensure Docker Compose v2 is available as a CLI plugin
             if ! docker compose version >/dev/null 2>&1; then
-              sudo apt-get install -y docker-compose-plugin || true
+              # Try apt-based install first (Ubuntu/Debian)
+              if command -v apt-get >/dev/null 2>&1; then
+                sudo apt-get update -y || true
+                sudo apt-get install -y docker-compose-plugin || true
+              fi
             fi
+
+            # Fallback: download compose plugin binary if still missing
+            if ! docker compose version >/dev/null 2>&1; then
+              COMPOSE_VERSION="v2.27.0"
+              OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+              ARCH=$(uname -m)
+              # Normalize common arch names
+              if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi
+              if [ "$ARCH" = "aarch64" ]; then ARCH="arm64"; fi
+              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              sudo curl -SL "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-${OS}-${ARCH}" \
+                -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+            fi
+
             cd /opt/garage
             # Login to GHCR if images are private
             if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
