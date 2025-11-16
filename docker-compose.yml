@@ -15,7 +15,7 @@ services:
       timeout: 3s
       retries: 10
   gateway:
-    build: ./gateway
+    image: ghcr.io/ikramarn/garage-gateway:latest
     ports:
       - "8080:8080"
     environment:
@@ -46,7 +46,7 @@ services:
     volumes:
       - pgadmindata:/var/lib/pgadmin
   appointments:
-    build: ./services/appointments
+    image: ghcr.io/ikramarn/garage-appointments:latest
     environment:
       - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
@@ -55,11 +55,11 @@ services:
       db:
         condition: service_healthy
   payments:
-    build: ./services/payments
+    image: ghcr.io/ikramarn/garage-payments:latest
     expose:
       - "8000"
   invoices:
-    build: ./services/invoices
+    image: ghcr.io/ikramarn/garage-invoices:latest
     environment:
       - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
     expose:
@@ -68,15 +68,15 @@ services:
       db:
         condition: service_healthy
   contactus:
-    build: ./services/contactus
+    image: ghcr.io/ikramarn/garage-contactus:latest
     expose:
       - "8000"
   catalog:
-    build: ./services/catalog
+    image: ghcr.io/ikramarn/garage-catalog:latest
     expose:
       - "8000"
   auth:
-    build: ./services/auth
+    image: ghcr.io/ikramarn/garage-auth:latest
     environment:
       - JWT_SECRET=dev-secret-change-me
       - DATABASE_URL=postgresql+psycopg2://garage:garage@db:5432/garage
@@ -86,9 +86,7 @@ services:
       db:
         condition: service_healthy
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/ikramarn/garage-frontend:latest
     ports:
       - "5173:5173"
     environment:
