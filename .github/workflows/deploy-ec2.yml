@@ -27,6 +27,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo mkdir -p /opt/garage
+            # ensure current SSH user can write into target directory
+            sudo chown -R $USER:$USER /opt/garage
 
       - name: Copy compose to EC2
         uses: appleboy/scp-action@v0.1.7
