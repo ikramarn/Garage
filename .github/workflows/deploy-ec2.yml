@@ -102,6 +102,8 @@ jobs:
             fi
             sudo docker compose -f docker-compose.ec2.yml --env-file .env pull
             sudo docker compose -f docker-compose.ec2.yml --env-file .env up -d
+            # Ensure the frontend always restarts to pick up config and asset changes
+            sudo docker compose -f docker-compose.ec2.yml --env-file .env up -d --no-deps --force-recreate frontend
             # Basic smoke test from EC2 (optional): frontend and gateway locally
             sleep 5
             curl -sSf http://localhost:80 >/dev/null || echo "[WARN] Frontend not responding on :80 yet"
