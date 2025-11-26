@@ -1,0 +1,52 @@
+{{- if .Values.components.auth.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-auth
+  labels:
+    {{- include "garage.labels" (dict "name" "auth" "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: garage-auth
+  template:
+    metadata:
+      labels:
+        app: garage-auth
+        {{- include "garage.labels" (dict "name" "auth" "Release" .Release) | nindent 8 }}
+    spec:
+      containers:
+        - name: auth
+          image: {{ include "garage.image" (dict "Values" .Values "name" "auth") }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: JWT_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: DATABASE_URL
+          ports:
+            - name: http
+              containerPort: 8000
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  labels:
+    {{- include "garage.labels" (dict "name" "auth" "Release" .Release) | nindent 4 }}
+spec:
+  selector:
+    app: garage-auth
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+{{- end }}
