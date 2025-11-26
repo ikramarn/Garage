@@ -19,6 +19,21 @@ service:
     frontend: 30000
     gateway: 30080
 
+ingress:
+  enabled: true
+  className: nginx
+  host: garage.local
+  tls:
+    enabled: false
+    secretName: garage-tls
+  paths:
+    frontend:
+      path: /
+      pathType: Prefix
+    gateway:
+      path: /api
+      pathType: Prefix
+
 resources: {}
 
 components:
