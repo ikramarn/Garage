@@ -1,0 +1,6 @@
+apiVersion: v2
+name: garage
+description: Helm chart for the Garage microservices app (frontend + FastAPI services + gateway)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
