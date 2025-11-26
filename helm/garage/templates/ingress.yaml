@@ -1,0 +1,37 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: garage
+  labels:
+    {{- include "garage.labels" (dict "name" "ingress" "Release" .Release) | nindent 4 }}
+  annotations:
+    {{- if .Values.ingress.className }}
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName | quote }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.paths.frontend.path }}
+            pathType: {{ .Values.ingress.paths.frontend.pathType }}
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 5173
+          - path: {{ .Values.ingress.paths.gateway.path }}
+            pathType: {{ .Values.ingress.paths.gateway.pathType }}
+            backend:
+              service:
+                name: gateway
+                port:
+                  number: 8080
+{{- end }}
