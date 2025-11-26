@@ -1,0 +1,47 @@
+{{- if .Values.components.invoices.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-invoices
+  labels:
+    {{- include "garage.labels" (dict "name" "invoices" "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: garage-invoices
+  template:
+    metadata:
+      labels:
+        app: garage-invoices
+        {{- include "garage.labels" (dict "name" "invoices" "Release" .Release) | nindent 8 }}
+    spec:
+      containers:
+        - name: invoices
+          image: {{ include "garage.image" (dict "Values" .Values "name" "invoices") }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: DATABASE_URL
+          ports:
+            - name: http
+              containerPort: 8000
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: invoices
+  labels:
+    {{- include "garage.labels" (dict "name" "invoices" "Release" .Release) | nindent 4 }}
+spec:
+  selector:
+    app: garage-invoices
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+{{- end }}
