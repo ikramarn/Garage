@@ -1,0 +1,40 @@
+registry: ghcr.io
+owner: ikramarn
+
+image:
+  tag: latest
+
+# Common env
+env:
+  jwtSecret: dev-secret-change-me
+  databaseUrl: "postgresql+psycopg2://garage:garage@db:5432/garage"
+  viteProxyTarget: "http://gateway:8080"
+
+replicaCount: 1
+
+service:
+  type: NodePort
+  # NodePort ports for Docker Desktop testing
+  ports:
+    frontend: 30000
+    gateway: 30080
+
+resources: {}
+
+components:
+  gateway:
+    enabled: true
+  frontend:
+    enabled: true
+  auth:
+    enabled: true
+  appointments:
+    enabled: true
+  invoices:
+    enabled: true
+  payments:
+    enabled: true
+  contactus:
+    enabled: true
+  catalog:
+    enabled: true
