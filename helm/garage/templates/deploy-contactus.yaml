@@ -1,0 +1,41 @@
+{{- if .Values.components.contactus.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-contactus
+  labels:
+    {{- include "garage.labels" (dict "name" "contactus" "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: garage-contactus
+  template:
+    metadata:
+      labels:
+        app: garage-contactus
+        {{- include "garage.labels" (dict "name" "contactus" "Release" .Release) | nindent 8 }}
+    spec:
+      containers:
+        - name: contactus
+          image: {{ include "garage.image" (dict "Values" .Values "name" "contactus") }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contactus
+  labels:
+    {{- include "garage.labels" (dict "name" "contactus" "Release" .Release) | nindent 4 }}
+spec:
+  selector:
+    app: garage-contactus
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+{{- end }}
