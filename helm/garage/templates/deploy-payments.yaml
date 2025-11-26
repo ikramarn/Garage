@@ -1,0 +1,41 @@
+{{- if .Values.components.payments.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-payments
+  labels:
+    {{- include "garage.labels" (dict "name" "payments" "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: garage-payments
+  template:
+    metadata:
+      labels:
+        app: garage-payments
+        {{- include "garage.labels" (dict "name" "payments" "Release" .Release) | nindent 8 }}
+    spec:
+      containers:
+        - name: payments
+          image: {{ include "garage.image" (dict "Values" .Values "name" "payments") }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments
+  labels:
+    {{- include "garage.labels" (dict "name" "payments" "Release" .Release) | nindent 4 }}
+spec:
+  selector:
+    app: garage-payments
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+{{- end }}
