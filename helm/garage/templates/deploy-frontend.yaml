@@ -1,0 +1,51 @@
+{{- if .Values.components.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garage-frontend
+  labels:
+    {{- include "garage.labels" (dict "name" "frontend" "Release" .Release) | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: garage-frontend
+  template:
+    metadata:
+      labels:
+        app: garage-frontend
+        {{- include "garage.labels" (dict "name" "frontend" "Release" .Release) | nindent 8 }}
+    spec:
+      containers:
+        - name: frontend
+          image: {{ include "garage.image" (dict "Values" .Values "name" "frontend") }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VITE_PROXY_TARGET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: VITE_PROXY_TARGET
+          ports:
+            - name: http
+              containerPort: 5173
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    {{- include "garage.labels" (dict "name" "frontend" "Release" .Release) | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: garage-frontend
+  ports:
+    - name: http
+      port: 5173
+      targetPort: 5173
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.ports.frontend }}
+      {{- end }}
+{{- end }}
