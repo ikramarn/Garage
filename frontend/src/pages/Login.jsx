@@ -4,7 +4,7 @@ import { api } from '../api'
 import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
-  const { setToken } = useAuth()
+  const { setToken, user } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -27,6 +27,7 @@ export default function Login() {
       <div className="card p-6">
         <h1 className="text-2xl font-semibold mb-4">Login</h1>
         {error && <p className="text-red-600 mb-3">{error}</p>}
+        {user && <p className="text-green-700 mb-3">You are logged in as {user.username}. <button type="button" className="underline" onClick={()=>navigate('/')}>Go to home</button></p>}
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <label className="label">Username</label>

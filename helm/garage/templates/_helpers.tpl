@@ -7,3 +7,8 @@ app.kubernetes.io/name: garage-{{ .name }}
 app.kubernetes.io/instance: {{ $.Release.Name }}
 app.kubernetes.io/part-of: garage
 {{- end -}}
+
+{{- /* Fullname helper for naming shared resources like ConfigMap */ -}}
+{{- define "garage.fullname" -}}
+{{- printf "%s-env" .Release.Name -}}
+{{- end -}}
