@@ -20,6 +20,12 @@ env:
   jwtSecret: dev-secret-change-me
   databaseUrl: "postgresql+psycopg2://garage:garage@db:5432/garage"
   viteProxyTarget: "http://gateway:8080"
+  contactNotifyEmail: "owner@example.com"
+  smtp:
+    host: "smtp.example.com"
+    port: 587
+    user: ""
+    pass: ""
 
 replicaCount: 1
 

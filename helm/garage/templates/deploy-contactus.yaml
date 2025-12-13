@@ -20,6 +20,32 @@ spec:
         - name: contactus
           image: {{ include "garage.image" (dict "Values" .Values "name" "contactus") }}
           imagePullPolicy: IfNotPresent
+          env:
+            - name: CONTACT_NOTIFY_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: CONTACT_NOTIFY_EMAIL
+            - name: SMTP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_HOST
+            - name: SMTP_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_PORT
+            - name: SMTP_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_USER
+            - name: SMTP_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_PASS
           ports:
             - name: http
               containerPort: 8000
