@@ -22,10 +22,17 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: CONTACT_NOTIFY_EMAIL
+              {{- if .Values.env.smtp.secretName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.smtp.secretName }}
+                  key: {{ .Values.env.smtp.notifyKey | default "CONTACT_NOTIFY_EMAIL" }}
+              {{- else }}
               valueFrom:
                 configMapKeyRef:
                   name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
                   key: CONTACT_NOTIFY_EMAIL
+              {{- end }}
             - name: SMTP_HOST
               valueFrom:
                 configMapKeyRef:
@@ -36,16 +43,18 @@ spec:
                 configMapKeyRef:
                   name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
                   key: SMTP_PORT
+            {{- if .Values.env.smtp.secretName }}
             - name: SMTP_USER
               valueFrom:
-                configMapKeyRef:
-                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
-                  key: SMTP_USER
+                secretKeyRef:
+                  name: {{ .Values.env.smtp.secretName }}
+                  key: {{ .Values.env.smtp.userKey | default "SMTP_USER" }}
             - name: SMTP_PASS
               valueFrom:
-                configMapKeyRef:
-                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
-                  key: SMTP_PASS
+                secretKeyRef:
+                  name: {{ .Values.env.smtp.secretName }}
+                  key: {{ .Values.env.smtp.passKey | default "SMTP_PASS" }}
+            {{- end }}
           ports:
             - name: http
               containerPort: 8000

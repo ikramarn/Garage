@@ -22,10 +22,10 @@ env:
   viteProxyTarget: "http://gateway:8080"
   contactNotifyEmail: "owner@example.com"
   smtp:
-    host: "smtp.example.com"
+    host: "smtp.gmail.com"
     port: 587
-    user: ""
-    pass: ""
+    user: "ikram.uet07e@gmail.com"
+    pass: "zzck yefv oxol tcji"
 
 replicaCount: 1
 
@@ -44,12 +44,15 @@ ingress:
     enabled: false
     secretName: garage-tls
   paths:
-    frontend:
+    contactNotifyEmail: "owner@example.com"
       path: /
       pathType: Prefix
     gateway:
-      path: /api
-      pathType: Prefix
+      # Reference a Kubernetes Secret for SMTP creds and (optionally) notify email
+      secretName: ""
+      userKey: "SMTP_USER"
+      passKey: "SMTP_PASS"
+      notifyKey: "CONTACT_NOTIFY_EMAIL"
 
 resources: {}
 
