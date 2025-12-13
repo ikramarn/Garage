@@ -58,6 +58,7 @@ export default function InvoiceCreate() {
         currency: 'USD',
         owner_id: appt?.owner_id,
         customer_name: appt?.customer_name,
+        admin_create: true,
       }
       const created = await api('/api/invoices', { method: 'POST', body: JSON.stringify(payload) })
       navigate(`/invoices/${created.id}`)
