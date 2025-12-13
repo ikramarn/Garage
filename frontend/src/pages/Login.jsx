@@ -10,13 +10,18 @@ export default function Login() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
+  // If already signed in, auto-redirect to Home
+  if (user) {
+    navigate('/')
+  }
+
   const onSubmit = async (e) => {
     e.preventDefault()
     setError('')
     try {
       const res = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) })
       setToken(res.token)
-      navigate('/invoices')
+      navigate('/')
     } catch (e) {
       setError(e.message)
     }
@@ -27,7 +32,7 @@ export default function Login() {
       <div className="card p-6">
         <h1 className="text-2xl font-semibold mb-4">Login</h1>
         {error && <p className="text-red-600 mb-3">{error}</p>}
-        {user && <p className="text-green-700 mb-3">You are logged in as {user.username}. <button type="button" className="underline" onClick={()=>navigate('/')}>Go to home</button></p>}
+        {user && <p className="text-green-700 mb-3">You are logged in as {user.username}. Redirecting to home…</p>}
         <form onSubmit={onSubmit} className="space-y-3">
           <div>
             <label className="label">Username</label>
