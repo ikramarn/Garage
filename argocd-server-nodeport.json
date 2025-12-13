@@ -1,0 +1,38 @@
+{
+    "spec":  {
+                 "clusterIP":  "10.101.225.129",
+                 "clusterIPs":  [
+                                    "10.101.225.129"
+                                ],
+                 "internalTrafficPolicy":  "Cluster",
+                 "ipFamilies":  [
+                                    "IPv4"
+                                ],
+                 "ipFamilyPolicy":  "SingleStack",
+                 "ports":  [
+                               {
+                                   "name":  "http",
+                                   "port":  80,
+                                   "protocol":  "TCP",
+                                   "targetPort":  8080
+                               },
+                               {
+                                   "name":  "https",
+                                   "port":  443,
+                                   "protocol":  "TCP",
+                                   "targetPort":  8080
+                               }
+                           ],
+                 "selector":  {
+                                  "app.kubernetes.io/name":  "argocd-server"
+                              },
+                 "sessionAffinity":  "None",
+                 "type":  "NodePort"
+             },
+    "metadata":  {
+                     "namespace":  "argocd",
+                     "name":  "argocd-server"
+                 },
+    "apiVersion":  "v1",
+    "kind":  "Service"
+}
