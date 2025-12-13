@@ -50,9 +50,12 @@ export default function Payments() {
           <input className="input" required type="number" step="0.01" placeholder="Amount" value={form.amount} onChange={e=>setForm(f=>({...f, amount:e.target.value}))} />
           <div className="grid grid-cols-2 gap-3">
             <input className="input" placeholder="Currency" value={form.currency} onChange={e=>setForm(f=>({...f, currency:e.target.value}))} />
-            <input className="input" placeholder="Method" value={form.method} onChange={e=>setForm(f=>({...f, method:e.target.value}))} />
+            <select className="input" value={form.method} onChange={e=>setForm(f=>({...f, method:e.target.value}))}>
+              <option value="card">Card</option>
+              <option value="paypal">PayPal</option>
+            </select>
           </div>
-          <button className="btn btn-primary w-fit">Create payment</button>
+          <button className="btn btn-primary w-fit">Make payment</button>
         </form>
       </div>
       <div className="grid gap-3">
