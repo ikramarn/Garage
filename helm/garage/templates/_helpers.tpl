@@ -1,5 +1,7 @@
 {{- define "garage.image" -}}
-{{- printf "%s/%s/garage-%s:%s" .Values.registry .Values.owner .name .Values.image.tag -}}
+{{- /* prefer per-component tag when available, else fall back to global */ -}}
+{{- $tag := (get .Values.imageTags .name) | default .Values.image.tag -}}
+{{- printf "%s/%s/garage-%s:%s" .Values.registry .Values.owner .name $tag -}}
 {{- end -}}
 
 {{- define "garage.labels" -}}

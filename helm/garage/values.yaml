@@ -4,6 +4,17 @@ owner: ikramarn
 image:
   tag: latest
 
+# Per-component image tags (override global image.tag when set)
+imageTags:
+  gateway: latest
+  frontend: latest
+  auth: latest
+  appointments: latest
+  invoices: latest
+  payments: latest
+  contactus: latest
+  catalog: latest
+
 # Common env
 env:
   jwtSecret: dev-secret-change-me
