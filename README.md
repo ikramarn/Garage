@@ -10,6 +10,11 @@ A microservices-driven web app with a React (Vite) frontend and FastAPI backend 
 
 An API Gateway unifies all backend endpoints under `/api/*`. Authentication uses JWT with RBAC (admin and customer).
 
+Recent changes:
+- Login: After signing in, users are redirected to Home.
+- Payments: Payments are made against invoices (select an invoice), not appointments.
+- Invoices: Only admins can create invoices and only for completed appointments (server verifies completion).
+
 ## Stack
 
 - Frontend: React + Vite + React Router
@@ -81,8 +86,13 @@ All routes exposed via the gateway under `/api/*`:
 
 - `GET /api/health` — overall health
 - Appointments: `/api/appointments` (CRUD)
-- Payments: `/api/payments` (create/list demo payments)
-- Invoices: `/api/invoices` (create/list demo invoices)
+- Payments: `/api/payments`:
+   - `GET /api/payments` — list payments
+   - `POST /api/payments` — create payment against an invoice: `{ invoice_id, amount, currency, method }`
+- Invoices: `/api/invoices`:
+   - `GET /api/invoices` — list invoices (admin sees all; customers see their own)
+   - `POST /api/invoices` — admin-only; requires `{ appointment_id, items, amount?, currency, owner_id?, customer_name?, admin_create: true }`
+      - Server validates the appointment is completed (scheduled time is in the past) via the Appointments service.
 - Contact Us: `/api/contactus` (submit message, list)
 - Services: `/api/services` (list service catalog)
 
@@ -116,6 +126,7 @@ pgAdmin access:
 - Server-side PDF at `GET /api/invoices/{id}/pdf` rendered via HTML template with WeasyPrint.
 - Optional branding env vars (set on `invoices` service):
    - `COMPANY_NAME`, `COMPANY_ADDRESS`, `COMPANY_LOGO_PATH`
+ - Invoices service calls Appointments service to validate completion; set `APPOINTMENTS_URL` if not using defaults.
 
 ## Notes on data
 
@@ -159,6 +170,9 @@ DATABASE_URL=postgresql+psycopg2://<db_user>:<db_password>@<db_host>:5432/<db_na
 
 # Shared JWT secret (gateway + auth)
 JWT_SECRET=<your-strong-secret>
+
+# Invoices service (server-side validation)
+APPOINTMENTS_URL=http://appointments:8000
 ```
 
 ### Azure (Web App for Containers, Docker Compose)
