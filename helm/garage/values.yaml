@@ -7,7 +7,7 @@ image:
 # Per-component image tags (override global image.tag when set)
 imageTags:
   gateway: latest
-  frontend: latest
+  frontend: sha-5e3592d
   auth: latest
   appointments: latest
   invoices: latest
