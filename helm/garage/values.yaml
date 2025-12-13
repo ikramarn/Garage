@@ -52,6 +52,8 @@ components:
     enabled: true
   frontend:
     enabled: true
+  postgres:
+    enabled: true
   auth:
     enabled: true
   appointments:
