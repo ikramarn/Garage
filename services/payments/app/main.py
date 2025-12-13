@@ -1,11 +1,11 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 class PaymentCreate(BaseModel):
-    appointment_id: str
+    invoice_id: str
     amount: float
     currency: str = "USD"
     method: str = "card"
