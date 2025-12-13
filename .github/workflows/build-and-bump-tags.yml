@@ -1,0 +1,84 @@
+name: Build images and bump Helm tags
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - 'services/**'
+      - 'gateway/**'
+      - 'helm/garage/**'
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      REGISTRY: ghcr.io
+      OWNER: ikramarn
+      SHA_TAG: sha-${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push frontend
+        if: ${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'frontend/') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/garage-frontend:${{ env.SHA_TAG }}
+
+      - name: Build & push invoices
+        if: ${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/invoices/') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/invoices
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/garage-invoices:${{ env.SHA_TAG }}
+
+      - name: Build & push payments
+        if: ${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/payments/') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./services/payments
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/garage-payments:${{ env.SHA_TAG }}
+
+      - name: Update Helm imageTags
+        run: |
+          set -euo pipefail
+          FILE=helm/garage/values.yaml
+          echo "Updating Helm imageTags to $SHA_TAG"
+          # Update per-component tag only if the image was built
+          FRONTEND_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'frontend/') }}
+          INVOICES_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/invoices/') }}
+          PAYMENTS_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/payments/') }}
+
+          if [ "$FRONTEND_CHANGED" = "true" ]; then
+            sed -i "s/^\([[:space:]]*frontend:\).*/\1 $SHA_TAG/" "$FILE"
+          fi
+          if [ "$INVOICES_CHANGED" = "true" ]; then
+            sed -i "s/^\([[:space:]]*invoices:\).*/\1 $SHA_TAG/" "$FILE"
+          fi
+          if [ "$PAYMENTS_CHANGED" = "true" ]; then
+            sed -i "s/^\([[:space:]]*payments:\).*/\1 $SHA_TAG/" "$FILE"
+          fi
+
+      - name: Commit and push Helm tag updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(helm): bump imageTags to ${{ env.SHA_TAG }}"
+          file_pattern: helm/garage/values.yaml
