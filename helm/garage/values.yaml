@@ -31,7 +31,7 @@ service:
     gateway: 30080
 
 ingress:
-  enabled: false
+  enabled: true
   className: nginx
   host: garage.local
   tls:
