@@ -4,6 +4,7 @@ from typing import List, Optional
 from uuid import uuid4
 from datetime import datetime
 from fastapi import FastAPI, Header, HTTPException
+import httpx
 from fastapi.responses import Response
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from weasyprint import HTML
@@ -24,6 +25,8 @@ class InvoiceCreate(BaseModel):
     items: List[InvoiceItem] = []
     customer_name: Optional[str] = None
     owner_id: Optional[str] = None
+    # Only admins may create invoices; require flag to be explicit
+    admin_create: bool = False
 
 class Invoice(InvoiceCreate):
     id: str
@@ -35,6 +38,7 @@ app = FastAPI(title="Invoices Service")
 
 # DB setup
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
+APPOINTMENTS_URL = os.getenv("APPOINTMENTS_URL", "http://appointments:8000")
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
@@ -99,9 +103,38 @@ def list_invoices(x_user_id: str | None = Header(default=None), x_user_role: str
 def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     if not x_user_id:
         raise HTTPException(401, "Unauthorized")
+    # Only admin may create invoices; normal users cannot
+    if x_user_role != "admin":
+        raise HTTPException(403, "Only admin can create invoices")
+    # Admin must indicate explicit create intention
+    if not payload.admin_create:
+        raise HTTPException(400, "admin_create flag required")
+    # Verify appointment is completed (use scheduled_at in the past as proxy)
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            resp = client.get(f"{APPOINTMENTS_URL}/appointments/{payload.appointment_id}", headers={"x-user-role": "admin"})
+        if resp.status_code != 200:
+            raise HTTPException(404, "Appointment not found")
+        appt = resp.json()
+        # expected key 'scheduled_at' as ISO8601
+        scheduled = appt.get("scheduled_at")
+        if not scheduled:
+            raise HTTPException(400, "Appointment missing scheduled time")
+        try:
+            # FastAPI typically serializes datetime to ISO format
+            scheduled_dt = datetime.fromisoformat(scheduled.replace("Z", "+00:00"))
+        except Exception:
+            raise HTTPException(400, "Invalid appointment date")
+        if scheduled_dt > datetime.utcnow().replace(tzinfo=scheduled_dt.tzinfo):
+            raise HTTPException(409, "Appointment not completed yet")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(500, "Failed to verify appointment status")
+
     iid = str(uuid4())
-    # Admin may create invoice for a customer
-    target_owner = payload.owner_id if x_user_role == "admin" and payload.owner_id else x_user_id
+    # Admin may create invoice for a customer (owner_id required)
+    target_owner = payload.owner_id if payload.owner_id else x_user_id
     amount = payload.amount if payload.amount is not None else sum(max(0.0, i.price) for i in payload.items)
     with SessionLocal() as s:
         row = InvoiceRow(
