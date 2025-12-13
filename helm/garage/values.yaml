@@ -20,12 +20,15 @@ env:
   jwtSecret: dev-secret-change-me
   databaseUrl: "postgresql+psycopg2://garage:garage@db:5432/garage"
   viteProxyTarget: "http://gateway:8080"
-  contactNotifyEmail: "owner@example.com"
+  contactNotifyEmail: ""
   smtp:
     host: "smtp.gmail.com"
     port: 587
-    user: "ikram.uet07e@gmail.com"
-    pass: "zzck yefv oxol tcji"
+    # Do NOT store creds in git. Set a Secret name and create it in the cluster.
+    secretName: "smtp-credentials"
+    userKey: "SMTP_USER"
+    passKey: "SMTP_PASS"
+    notifyKey: "CONTACT_NOTIFY_EMAIL"
 
 replicaCount: 1
 
@@ -44,15 +47,12 @@ ingress:
     enabled: false
     secretName: garage-tls
   paths:
-    contactNotifyEmail: "owner@example.com"
+    frontend:
       path: /
       pathType: Prefix
     gateway:
-      # Reference a Kubernetes Secret for SMTP creds and (optionally) notify email
-      secretName: ""
-      userKey: "SMTP_USER"
-      passKey: "SMTP_PASS"
-      notifyKey: "CONTACT_NOTIFY_EMAIL"
+      path: /api
+      pathType: Prefix
 
 resources: {}
 
