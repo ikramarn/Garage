@@ -3,6 +3,27 @@ kind: Application
 metadata:
   name: garage
   namespace: argocd
+  annotations:
+    # Track images and auto-update Helm value image.tag via Argo CD Image Updater
+    argocd-image-updater.argoproj.io/image-list: |
+      frontend=ghcr.io/ikramarn/garage-frontend,
+      gateway=ghcr.io/ikramarn/garage-gateway,
+      auth=ghcr.io/ikramarn/garage-auth,
+      appointments=ghcr.io/ikramarn/garage-appointments,
+      invoices=ghcr.io/ikramarn/garage-invoices,
+      payments=ghcr.io/ikramarn/garage-payments,
+      contactus=ghcr.io/ikramarn/garage-contactus,
+      catalog=ghcr.io/ikramarn/garage-catalog
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    argocd-image-updater.argoproj.io/helm.image-values: image.tag
+    argocd-image-updater.argoproj.io/frontend.update-strategy: latest
+    argocd-image-updater.argoproj.io/gateway.update-strategy: latest
+    argocd-image-updater.argoproj.io/auth.update-strategy: latest
+    argocd-image-updater.argoproj.io/appointments.update-strategy: latest
+    argocd-image-updater.argoproj.io/invoices.update-strategy: latest
+    argocd-image-updater.argoproj.io/payments.update-strategy: latest
+    argocd-image-updater.argoproj.io/contactus.update-strategy: latest
+    argocd-image-updater.argoproj.io/catalog.update-strategy: latest
 spec:
   project: default
   source:
