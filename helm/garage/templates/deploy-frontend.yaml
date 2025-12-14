@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "garage.labels" (dict "name" "frontend" "Release" .Release) | nindent 4 }}
   annotations:
-    # Ensure Argo CD Image Updater respects prod tag policy
+    # Allow dev tag policy for image updater
     argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/allow-tags: ^prod-.*$
+    argocd-image-updater.argoproj.io/allow-tags: ^dev-.*$
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:

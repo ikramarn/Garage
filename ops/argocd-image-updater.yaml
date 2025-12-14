@@ -22,10 +22,10 @@ spec:
         - alias: "frontend"
           imageName: "ghcr.io/ikramarn/garage-frontend"
           commonUpdateSettings:
-            # Track only production tags matching prod-* and use digest pinning
+            # Track development tags matching dev-* and pin by digest
             updateStrategy: "digest"
             allowTags:
-              regex: "^prod-.*$"
+              regex: "^dev-.*$"
           manifestTargets:
             helm:
               name: "imageRepos.frontend"
