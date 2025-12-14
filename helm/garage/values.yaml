@@ -8,7 +8,7 @@ imageTags:
   frontend: latest@sha256:57de19c8863b71cf9bfc67dbd834c6a3f49ff62dd633a5b5ecc6b7211cc5aca7
   auth: latest@sha256:eec260e7b7c5f38d8b1b9b94a664d5db02ac8efae2f22a6da7d0959d164ad91a
   appointments: latest@sha256:57eafc4a73014d6d68c256163e859e95dfb86764d1bec9aac9e4cc2f2cb09638
-  invoices: latest@sha256:a45fb44b61c0b88daef59eef232d4ddb363b39f35c32ef8aba5290cb0bdb6f58
+  invoices: latest@sha256:87c1bd81eafd55c071f4accea16fcf0938ad98daac211a89bd3040a88fd901dd
   payments: latest@sha256:8a23e8a6839dcf36669e1a72c4cd0bdcbcbddc5b78b1fb2759eda949f6711088
   contactus: latest@sha256:5a1c24eb0dcd0131be7978b78186e49fe1003d918e019b1fdfbd4a1d99262dbb
   catalog: latest@sha256:86ee5345f3aa7c0b1d2552d2118780f363bc18b07d690336ffb88002296ef713
