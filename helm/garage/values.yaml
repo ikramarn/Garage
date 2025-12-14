@@ -4,10 +4,10 @@ image:
   tag: latest
 # Per-component image tags (override global image.tag when set)
 imageTags:
-  gateway: latest@sha256:dd39b549b3549104657e6eb61af76d1a8c84f59a9aa39eb53c790cf46177b4bd
+  gateway: latest@sha256:e199087b60193652e0158b162c70ccdc026caead0be3e8acd1429a6d924c5cc5
   frontend: latest@sha256:594935e3ba44073f2081216a3fc349ae1983633a64fca18ae069c63f7080d06b
-  auth: latest@sha256:59b01a9d9fc3468d200c43d564adbcc3172bd761caef651517780fe639bb93c9
-  appointments: latest@sha256:11f076b0a4ed91c5c6cd92353f7771006b5666072d23ccdd79cbfad844b40982
+  auth: latest@sha256:3011347bc3d3e5b100cc9abf9961c801c19bd6b12185aa22d6bda9e01bab5b47
+  appointments: latest@sha256:1dcda2957249dfe1cf68f1726cdab11c000371af7afc9a4bb006ad2b12f94a3a
   invoices: latest@sha256:defd367b250a2904671fc6e5902cf474d44b960520b44c6b87d5d837feff399e
   payments: latest@sha256:8601829a2efb33f7a5beb2e7ef67598c9bf73666964290af503d472cda3c3333
   contactus: latest@sha256:b6d31280765861eb877f3eee96070da91344c6fc8b0bd6b60293fc3fb8ce5236
