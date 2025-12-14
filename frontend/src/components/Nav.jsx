@@ -16,7 +16,9 @@ export default function Nav() {
         <nav className="flex items-center gap-2">
           <NavLink to="/" className={linkClass} end>Home</NavLink>
           <NavLink to="/appointments" className={linkClass}>Appointments</NavLink>
-          <NavLink to="/payments" className={linkClass}>Payments</NavLink>
+          {user?.role !== 'admin' && (
+            <NavLink to="/payments" className={linkClass}>Payments</NavLink>
+          )}
           <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
           <NavLink to="/contactus" className={linkClass}>Contact Us</NavLink>
           <NavLink to="/services" className={linkClass}>Services</NavLink>
