@@ -1,0 +1,92 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: garage-images
+  namespace: argocd
+spec:
+  # Applications reside in the argocd control plane namespace
+  namespace: argocd
+
+  # Write back via Git to your repo, updating helm values
+  writeBackConfig:
+    method: "git:secret:argocd-image-updater-system/git-creds"
+    gitConfig:
+      branch: "main"
+      writeBackTarget: "helmvalues:values.yaml"  # relative to spec.source.path (helm/garage)
+
+  # Track the single Application named 'garage'
+  applicationRefs:
+    - namePattern: "garage"
+      images:
+        # Frontend
+        - alias: "frontend"
+          imageName: "ghcr.io/ikramarn/garage-frontend:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"  # redeploy on each latest push
+          manifestTargets:
+            helm:
+              name: "imageRepos.frontend"
+              tag: "imageTags.frontend"
+        # Gateway
+        - alias: "gateway"
+          imageName: "ghcr.io/ikramarn/garage-gateway:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.gateway"
+              tag: "imageTags.gateway"
+        # Auth
+        - alias: "auth"
+          imageName: "ghcr.io/ikramarn/garage-auth:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.auth"
+              tag: "imageTags.auth"
+        # Appointments
+        - alias: "appointments"
+          imageName: "ghcr.io/ikramarn/garage-appointments:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.appointments"
+              tag: "imageTags.appointments"
+        # Invoices
+        - alias: "invoices"
+          imageName: "ghcr.io/ikramarn/garage-invoices:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.invoices"
+              tag: "imageTags.invoices"
+        # Payments
+        - alias: "payments"
+          imageName: "ghcr.io/ikramarn/garage-payments:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.payments"
+              tag: "imageTags.payments"
+        # ContactUs
+        - alias: "contactus"
+          imageName: "ghcr.io/ikramarn/garage-contactus:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.contactus"
+              tag: "imageTags.contactus"
+        # Catalog
+        - alias: "catalog"
+          imageName: "ghcr.io/ikramarn/garage-catalog:latest"
+          commonUpdateSettings:
+            updateStrategy: "digest"
+          manifestTargets:
+            helm:
+              name: "imageRepos.catalog"
+              tag: "imageTags.catalog"
