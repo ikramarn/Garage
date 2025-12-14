@@ -9,6 +9,16 @@ export default function Payments() {
   const [form, setForm] = useState({ invoice_id: '', amount: 0, currency: 'USD', method: 'card' })
   const [err, setErr] = useState('')
 
+  // Hide payments UI for admin role
+  if (user?.role === 'admin') {
+    return (
+      <div className="card p-6">
+        <h2 className="text-2xl font-semibold mb-2">Payments</h2>
+        <p className="text-gray-700">Admins don’t pay invoices. Use the Invoices view to manage and mark payments.</p>
+      </div>
+    )
+  }
+
   const load = async () => {
     try {
       const [p, inv] = await Promise.all([
