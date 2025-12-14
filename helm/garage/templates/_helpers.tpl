@@ -1,16 +1,16 @@
 {{- define "garage.image" -}}
 {{- /* If a full image spec override is provided, use it */ -}}
-{{- $spec := (get .Values.imageSpec .name) -}}
+{{- $spec := (and (kindIs "map" .Values.imageSpec) (get .Values.imageSpec .name)) -}}
 {{- if $spec -}}
 {{- printf "%s" $spec -}}
 {{- else -}}
 	{{- /* prefer per-component tag when available, else fall back to global */ -}}
-	{{- $tag := (get .Values.imageTags .name) | default .Values.image.tag -}}
+	{{- $tag := (and (kindIs "map" .Values.imageTags) (get .Values.imageTags .name)) | default .Values.image.tag -}}
 	{{- /* derive repo from override or registry/owner */ -}}
-	{{- $repo := (get .Values.imageRepos .name) | default (printf "%s/%s/garage-%s" .Values.registry .Values.owner .name) -}}
+	{{- $repo := (and (kindIs "map" .Values.imageRepos) (get .Values.imageRepos .name)) | default (printf "%s/%s/garage-%s" .Values.registry .Values.owner .name) -}}
 	{{- $base := printf "%s:%s" $repo $tag -}}
 	{{- /* Append digest if provided for immutable deployments */ -}}
-	{{- $digest := (get .Values.imageDigests .name) -}}
+	{{- $digest := (and (kindIs "map" .Values.imageDigests) (get .Values.imageDigests .name)) -}}
 	{{- if $digest -}}
 	{{- printf "%s@sha256:%s" $base $digest -}}
 	{{- else -}}
