@@ -20,9 +20,12 @@ spec:
       images:
         # Frontend
         - alias: "frontend"
-          imageName: "ghcr.io/ikramarn/garage-frontend:latest"
+          imageName: "ghcr.io/ikramarn/garage-frontend"
           commonUpdateSettings:
-            updateStrategy: "digest"  # redeploy on each latest push
+            # Track only production tags matching prod-* and use digest pinning
+            updateStrategy: "digest"
+            allowTags:
+              regex: "^prod-.*$"
           manifestTargets:
             helm:
               name: "imageRepos.frontend"
