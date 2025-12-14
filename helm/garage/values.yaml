@@ -6,12 +6,12 @@ image:
 imageTags:
   gateway: latest@sha256:41093df5f96b0e39624c089795416ac5a3ac0640d02d74f87f95b816aad596d9
   frontend: latest@sha256:594935e3ba44073f2081216a3fc349ae1983633a64fca18ae069c63f7080d06b
-  auth: latest@sha256:a3399f208f21ca9efb43a007c5a2c51e3e9756d8f2d8a67d63270f7df6706efd
+  auth: latest@sha256:cee84c338840764378fd4074da79edcf5094f79b3253b6a50729418e57c8983b
   appointments: latest@sha256:7dcffaf1b328fabe2466dcd5715410f890c7ba0f10f23f5a0834dbf44eaf81f0
   invoices: latest@sha256:defd367b250a2904671fc6e5902cf474d44b960520b44c6b87d5d837feff399e
-  payments: latest@sha256:2a9d25d050d2fe1007e7232736d22f6f5d57cf7528edcc29fe7f45aed8d8fbb2
+  payments: latest@sha256:537c9a1cc30bbd01f98dc1690ac3b1207c3fa5c3577f64666739ba94cab8f356
   contactus: latest@sha256:c1ff27b4715351deb39bd897d853747a54596bdeca99394929451560122f7300
-  catalog: latest@sha256:5be29110f4294f8c9ae05fccbac3bdbcb9cd4fbdfb794db2ee7834405583bcf5
+  catalog: latest@sha256:96dc3049ff6e12f0ab3aacc95272fcb5bad3c5014e3a527ccb0dc8b8536f02ff
 # Common env
 env:
   jwtSecret: dev-secret-change-me
