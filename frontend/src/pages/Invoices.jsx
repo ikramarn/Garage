@@ -40,11 +40,9 @@ export default function Invoices() {
           </div>
         </div>
         {user && <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Signed in as <b>{user.username}</b> ({user.role}). {user.role !== 'admin' ? 'You will only see your invoices.' : 'You can see all invoices.'}</p>}
-            {items.filter(inv => filter==='all' ? true : filter==='paid' ? !!inv.paid || inv.status==='Paid' : !(inv.paid || inv.status==='Paid')).map(inv => (
         {user?.role === 'admin' && (
-          <button className="btn btn-primary" onClick={() => setPickerOpen(true)}>Create invoice from appointment</button>
+          <button className="btn btn-primary mb-4" onClick={() => setPickerOpen(true)}>Create invoice from appointment</button>
         )}
-                  <div className="text-sm text-gray-600 dark:text-gray-300">for appt {inv.appointment_id} · Ref #{inv.reference || inv.appointment_ref || inv.appointment_id}</div>
       <div className="grid gap-3">
         {items.filter(inv => filter==='all' ? true : filter==='paid' ? !!inv.paid || inv.status==='Paid' : !(inv.paid || inv.status==='Paid')).map(inv => (
           <div key={inv.id} className="card p-4 flex items-center justify-between">
@@ -82,7 +80,7 @@ export default function Invoices() {
                 <div key={a.id} className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                   <div>
                     <div className="font-medium">{a.customer_name}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${'{'}a.service_ids.length{'}'}` : '0'} service(s)</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? a.service_ids.length : 0} service(s)</div>
                   </div>
                   <button className="btn btn-outline" onClick={() => navigate(`/invoices/new/${a.id}`)}>Select</button>
                 </div>
@@ -99,16 +97,16 @@ export default function Invoices() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-md w-full p-6">
             <h3 className="text-xl font-semibold mb-2">Select payment type</h3>
-            <p className="mb-4 text-gray-700">Before printing, choose how to mark invoice #{'{'}payChoice.id{'}'} as paid.</p>
+            <p className="mb-4 text-gray-700">Before printing, choose how to mark invoice #{payChoice.id} as paid.</p>
             <div className="grid grid-cols-2 gap-3">
               <button className="btn btn-secondary" onClick={async()=>{
-                try { await api(`/api/invoices/${'{'}payChoice.id{'}'}/mark-paid`, { method: 'POST' }); setPayChoice(null); load(); }
+                try { await api(`/api/invoices/${payChoice.id}/mark-paid`, { method: 'POST' }); setPayChoice(null); load(); }
                 catch(e){ setErr(e.message) }
               }}>Manual Payment</button>
               <button className="btn btn-primary" onClick={async()=>{
                 try {
                   const session = await api('/api/payments/stripe/create-session', { method: 'POST', body: JSON.stringify({ invoice_id: payChoice.id }) })
-                  if (session?.url) window.location.href = session.url; else window.location.href = `/payments?invoice=${'{'}payChoice.id{'}'}`
+                  if (session?.url) window.location.href = session.url; else window.location.href = `/payments?invoice=${payChoice.id}`
                 } catch(e){ setErr(e.message) }
               }}>Online Payment</button>
             </div>
