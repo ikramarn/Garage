@@ -5,7 +5,7 @@ image:
 # Per-component image tags (override global image.tag when set)
 imageTags:
   gateway: latest@sha256:39d3c119b0924805681c55f5f4b646c41c68ff995b0906f6ff2dd18b6b33c209
-  frontend: latest@sha256:8bf0c206470438b2f9341c2c933c2ef6914f3a5d77640f92c54901f5a03ded6c
+  frontend: latest@sha256:1e85588e5de22caa3998368830dcc1b5922be0405a84338a209548e538955bf2
   auth: latest@sha256:a2fd396ec3a2ce350cc5628da68addce05744223eec6d1f1f654980093ba9633
   appointments: latest@sha256:06214be18ddb4b62e9ae253e80fbddead36329c9ee78157e6113cf783249b0eb
   invoices: latest@sha256:6772e5ecebb00c6692f47d9d965e4ab32dc61da33bfb61fb950089a64032db5b
