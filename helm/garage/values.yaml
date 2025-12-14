@@ -1,20 +1,17 @@
 registry: ghcr.io
 owner: ikramarn
-
 image:
   tag: latest
-
 # Per-component image tags (override global image.tag when set)
 imageTags:
-  gateway: latest
-  frontend: latest
-  auth: latest
-  appointments: latest
-  invoices: latest
-  payments: latest
-  contactus: latest
-  catalog: latest
-
+  gateway: latest@sha256:36accfaff6afbc971ec5c24a12e27d3768ac9063c39f96fe3ec80808ee2b6a2e
+  frontend: latest@sha256:d17c8936d0f1212d6c3c5e54b80fdf28e3274a91794e7cec46a3bce202bc96e4
+  auth: latest@sha256:2322cee379f386ce79152772f97a85473efd78b50e5cf22207320148feb5dc5b
+  appointments: latest@sha256:38ac5d2dc9f62cdd1aad45730e58b548e9822e96b1c140a6efe2eb5e35c6153e
+  invoices: latest@sha256:5a1a39250d4738055ac8db1b39d730ce42166f93f86dee85bb3eb1f61732984b
+  payments: latest@sha256:8b2a39df3dd7973d0ee60fe3d69c3501baa5516234866f2a0cf4646ef62e1a1d
+  contactus: latest@sha256:a77046b06c0f8b4029357a3a018b8d09b643b4bb21def5e9233d7fb29c84b642
+  catalog: latest@sha256:54d0d26045940ae72dd8d6069fd2990a0390bb450c7ebc5a7ceb1ff39188a885
 # Common env
 env:
   jwtSecret: dev-secret-change-me
@@ -29,16 +26,13 @@ env:
     userKey: "SMTP_USER"
     passKey: "SMTP_PASS"
     notifyKey: "CONTACT_NOTIFY_EMAIL"
-
 replicaCount: 1
-
 service:
   type: NodePort
   # NodePort ports for Docker Desktop testing
   ports:
     frontend: 30000
     gateway: 30080
-
 ingress:
   enabled: true
   className: nginx
@@ -53,9 +47,7 @@ ingress:
     gateway:
       path: /api
       pathType: Prefix
-
 resources: {}
-
 components:
   gateway:
     enabled: true
@@ -75,3 +67,12 @@ components:
     enabled: true
   catalog:
     enabled: true
+imageRepos:
+  frontend: ghcr.io/ikramarn/garage-frontend
+  gateway: ghcr.io/ikramarn/garage-gateway
+  auth: ghcr.io/ikramarn/garage-auth
+  appointments: ghcr.io/ikramarn/garage-appointments
+  invoices: ghcr.io/ikramarn/garage-invoices
+  payments: ghcr.io/ikramarn/garage-payments
+  contactus: ghcr.io/ikramarn/garage-contactus
+  catalog: ghcr.io/ikramarn/garage-catalog
