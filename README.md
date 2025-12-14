@@ -158,6 +158,35 @@ Make images public (optional):
 
 Use in compose (already configured): images are pulled from GHCR via `image:` entries.
 
+## Kubernetes Ingress (local cluster)
+
+The cluster exposes an NGINX Ingress that routes:
+
+- `/` → `frontend` service (port 5173)
+- `/api` → `gateway` service (port 8080)
+
+For local access, map the host to localhost:
+
+1) Edit `C:\Windows\System32\drivers\etc\hosts` (run editor as Administrator) and add:
+
+```
+127.0.0.1 garage.local
+```
+
+2) Open:
+
+- Frontend: http://garage.local
+- API example: http://garage.local/api/services
+
+Verify from PowerShell:
+
+```powershell
+Invoke-WebRequest -Headers @{ Host = "garage.local" } -Uri http://localhost/ -UseBasicParsing
+Invoke-WebRequest -Headers @{ Host = "garage.local" } -Uri http://localhost/api/services -UseBasicParsing
+```
+
+Tip: Avoid port-forwarding the `frontend` service for browsing; it serves static assets only and does not proxy `/api`. Always use the Ingress for combined UI+API routing.
+
 ## Deploy
 
 Recommended approach: use a managed PostgreSQL in the cloud and deploy the app containers using your registry images. For a quick POC you can run Postgres as a container, but for production use a managed service (Azure Database for PostgreSQL / AWS RDS for PostgreSQL) and set `DATABASE_URL` on the services.
