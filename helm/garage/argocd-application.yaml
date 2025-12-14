@@ -3,6 +3,38 @@ kind: Application
 metadata:
   name: garage
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/update-strategy: latest
+
+    argocd-image-updater.argoproj.io/image-list: |
+      frontend=ghcr.io/ikramarn/garage-frontend,
+      gateway=ghcr.io/ikramarn/garage-gateway,
+      auth=ghcr.io/ikramarn/garage-auth,
+      appointments=ghcr.io/ikramarn/garage-appointments,
+      invoices=ghcr.io/ikramarn/garage-invoices,
+      payments=ghcr.io/ikramarn/garage-payments,
+      contactus=ghcr.io/ikramarn/garage-contactus,
+      catalog=ghcr.io/ikramarn/garage-catalog
+
+    argocd-image-updater.argoproj.io/frontend.helm.image-tag: imageTags.frontend
+    argocd-image-updater.argoproj.io/gateway.helm.image-tag: imageTags.gateway
+    argocd-image-updater.argoproj.io/auth.helm.image-tag: imageTags.auth
+    argocd-image-updater.argoproj.io/appointments.helm.image-tag: imageTags.appointments
+    argocd-image-updater.argoproj.io/invoices.helm.image-tag: imageTags.invoices
+    argocd-image-updater.argoproj.io/payments.helm.image-tag: imageTags.payments
+    argocd-image-updater.argoproj.io/contactus.helm.image-tag: imageTags.contactus
+    argocd-image-updater.argoproj.io/catalog.helm.image-tag: imageTags.catalog
+
+    argocd-image-updater.argoproj.io/frontend.allow-tags: latest
+    argocd-image-updater.argoproj.io/gateway.allow-tags: latest
+    argocd-image-updater.argoproj.io/auth.allow-tags: latest
+    argocd-image-updater.argoproj.io/appointments.allow-tags: latest
+    argocd-image-updater.argoproj.io/invoices.allow-tags: latest
+    argocd-image-updater.argoproj.io/payments.allow-tags: latest
+    argocd-image-updater.argoproj.io/contactus.allow-tags: latest
+    argocd-image-updater.argoproj.io/catalog.allow-tags: latest
 spec:
   project: default
   source:
