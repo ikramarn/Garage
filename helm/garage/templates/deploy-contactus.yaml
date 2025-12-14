@@ -54,6 +54,17 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.smtp.secretName }}
                   key: {{ .Values.env.smtp.passKey | default "SMTP_PASS" }}
+            {{- else }}
+            - name: SMTP_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_USER
+            - name: SMTP_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_PASS
             {{- end }}
           ports:
             - name: http
