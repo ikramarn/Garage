@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
 import { useAuth } from '../auth/AuthContext'
+import { Link } from 'react-router-dom'
 
 export default function Appointments() {
   const { user } = useAuth()
@@ -86,7 +87,7 @@ export default function Appointments() {
             {user?.role === 'admin' && (
               <div className="flex gap-2 mt-2">
                 <button className="btn btn-outline" onClick={() => remove(a.id)}>Delete</button>
-                <a className="btn btn-primary" href={`/invoices/new/${a.id}`}>Create invoice</a>
+                  <Link className="btn btn-primary" to={`/invoices/new/${a.id}`}>Create invoice</Link>
               </div>
             )}
           </div>
