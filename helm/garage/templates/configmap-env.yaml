@@ -8,6 +8,10 @@ data:
   JWT_SECRET: {{ .Values.env.jwtSecret | quote }}
   DATABASE_URL: {{ .Values.env.databaseUrl | quote }}
   VITE_PROXY_TARGET: {{ .Values.env.viteProxyTarget | quote }}
+  FRONTEND_URL: {{ .Values.env.frontendUrl | default "http://localhost:5173" | quote }}
+  STRIPE_SECRET_KEY: {{ .Values.env.stripeSecretKey | default "" | quote }}
   SMTP_HOST: {{ .Values.env.smtp.host | default "" | quote }}
   SMTP_PORT: {{ .Values.env.smtp.port | default 587 | quote }}
+  SMTP_USER: {{ .Values.env.smtp.user | default "" | quote }}
+  SMTP_PASS: {{ .Values.env.smtp.pass | default "" | quote }}
   CONTACT_NOTIFY_EMAIL: {{ .Values.env.contactNotifyEmail | default "" | quote }}
