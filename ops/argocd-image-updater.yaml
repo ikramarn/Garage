@@ -20,12 +20,10 @@ spec:
       images:
         # Frontend
         - alias: "frontend"
-          imageName: "ghcr.io/ikramarn/garage-frontend"
+          imageName: "ghcr.io/ikramarn/garage-frontend:latest"
           commonUpdateSettings:
-            # Track development tags matching dev-* and pin by digest
+            # Track latest and pin by digest, same as other services
             updateStrategy: "digest"
-            allowTags:
-              regex: "^dev-.*$"
           manifestTargets:
             helm:
               name: "imageRepos.frontend"
