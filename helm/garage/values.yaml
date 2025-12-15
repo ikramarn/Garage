@@ -9,7 +9,7 @@ imageTags:
   auth: latest@sha256:90f7b25ffb80bf9da3419aec445e01a02e52a5b59a1aa39059339a497f987ef9
   appointments: latest@sha256:59fe7eb72b7555caae79de6859ea0f5fc0b1003151a36cce7ddf0c3c970953bf
   invoices: latest@sha256:5561c1c37b14a9795315354e4251c113f5e28efbc11dc3073642395be4621c31
-  payments: latest@sha256:a0bcb3837cfa0433e96b6bb3d5cd7cdf524f236782771602c26a7250bac6120c
+  payments: latest@sha256:e2431a5ce5feb500ebef7dd3cb6a0b1b9fcd5008bb1875d002bc6e4549bd7331
   contactus: latest@sha256:fb3f23da8a7c57fee42a023606b2372d2dde0b6a935add34a5ce2a8d7c7c372f
   catalog: latest@sha256:2cc3fe32938175daffd9bc3514506b886b6bb67ac7813847eee961dc66e29e44
 # Common env
