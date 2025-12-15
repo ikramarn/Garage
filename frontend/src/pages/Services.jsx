@@ -54,7 +54,7 @@ export default function Services() {
       <div className="card p-6">
         <h2 className="text-2xl font-semibold mb-4">Services</h2>
         {err && <p className="text-red-600 mb-3">{err}</p>}
-        {user?.role === 'admin' ? (
+        {user && user.role === 'admin' ? (
           <form onSubmit={submit} className="grid gap-3 max-w-xl">
             <input className="input" required placeholder="Name" value={form.name} onChange={e=>setForm(f=>({...f, name:e.target.value}))} />
             <input className="input" placeholder="Description" value={form.description} onChange={e=>setForm(f=>({...f, description:e.target.value}))} />

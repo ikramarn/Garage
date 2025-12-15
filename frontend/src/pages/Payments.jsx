@@ -10,7 +10,7 @@ export default function Payments() {
   const [err, setErr] = useState('')
 
   // Hide payments UI for admin role
-  if (user?.role === 'admin') {
+  if (user && user.role === 'admin') {
     return (
       <div className="card p-6">
         <h2 className="text-2xl font-semibold mb-2">Payments</h2>

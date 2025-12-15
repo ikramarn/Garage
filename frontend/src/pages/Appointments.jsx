@@ -84,7 +84,7 @@ export default function Appointments() {
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${a.service_ids.length} service(s)` : '0 services'} · ${'{'}Number(a.total_price || 0).toFixed(2){'}'}
             </div>
-            {user?.role === 'admin' && (
+            {user && user.role === 'admin' && (
               <div className="flex gap-2 mt-2">
                 <button className="btn btn-outline" onClick={() => remove(a.id)}>Delete</button>
                   <Link className="btn btn-primary" to={`/invoices/new/${a.id}`}>Create invoice</Link>

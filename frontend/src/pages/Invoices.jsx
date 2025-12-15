@@ -40,35 +40,34 @@ export default function Invoices() {
           </div>
         </div>
         {user && <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Signed in as <b>{user.username}</b> ({user.role}). {user.role !== 'admin' ? 'You will only see your invoices.' : 'You can see all invoices.'}</p>}
-        {user?.role === 'admin' && (
+        {user && user.role === 'admin' && (
           <button className="btn btn-primary mb-4" onClick={() => setPickerOpen(true)}>Create invoice from appointment</button>
         )}
       <div className="grid gap-3">
-        {items.filter(inv => filter==='all' ? true : filter==='paid' ? !!inv.paid || inv.status==='Paid' : !(inv.paid || inv.status==='Paid')).map(inv => (
-          <div key={inv.id} className="card p-4 flex items-center justify-between">
-                  {user?.role === 'admin' ? (
-                    <button className="btn btn-secondary" onClick={()=>setPayChoice(inv)}>Print</button>
-                  ) : (!inv.paid && (
-                    <button className="btn btn-primary" onClick={()=>{
-                      // customer online pay
-                      (async()=>{
-                        try {
-                          const session = await api('/api/payments/stripe/create-session', { method: 'POST', body: JSON.stringify({ invoice_id: inv.id }) })
-                          if (session?.url) window.location.href = session.url; else window.location.href = `/payments?invoice=${inv.id}`
-                        } catch(e){ setErr(e.message) }
-                      })()
-                    }}>Pay Online</button>
-                  ))}
+        {items
+          .filter(inv => filter==='all' ? true : filter==='paid' ? !!inv.paid || inv.status==='Paid' : !(inv.paid || inv.status==='Paid'))
+          .map(inv => (
+            <div key={inv.id} className="card p-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-1 rounded ${inv.paid || inv.status==='Paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>{inv.paid || inv.status==='Paid' ? 'Paid' : (inv.status || 'Unpaid')}</span>
+                <Link className="btn btn-outline" to={`/invoices/${inv.id}`}>View</Link>
+              </div>
+              <div className="flex items-center gap-2">
+                {user && user.role === 'admin' ? (
+                  <button className="btn btn-secondary" onClick={()=>setPayChoice(inv)}>Print</button>
+                ) : (!inv.paid && (
+                  <button className="btn btn-primary" onClick={()=>{
+                    (async()=>{
+                      try {
+                        const session = await api('/api/payments/stripe/create-session', { method: 'POST', body: JSON.stringify({ invoice_id: inv.id }) })
+                        if (session && session.url) window.location.href = session.url; else window.location.href = `/payments?invoice=${inv.id}`
+                      } catch(e){ setErr(e.message) }
+                    })()
+                  }}>Pay Online</button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`text-xs px-2 py-1 rounded ${inv.paid || inv.status==='Paid' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>{inv.paid || inv.status==='Paid' ? 'Paid' : (inv.status || 'Unpaid')}</span>
-              {user?.role === 'admin' && (
-                <button className="btn btn-secondary" onClick={()=>setPayChoice(inv)}>Print</button>
-              )}
-              <Link className="btn btn-outline" to={`/invoices/${inv.id}`}>View</Link>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {pickerOpen && (
