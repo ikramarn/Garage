@@ -12,7 +12,7 @@ spec:
     method: "git:secret:argocd-image-updater-system/git-creds"
     gitConfig:
       branch: "main"
-      writeBackTarget: "helmvalues:values.yaml"  # relative to spec.source.path (helm/garage)
+      writeBackTarget: "helmvalues:values.images.yaml"  # write only to digest file to avoid conflicts
 
   # Track the single Application named 'garage'
   applicationRefs:
