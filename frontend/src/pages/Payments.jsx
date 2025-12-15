@@ -53,7 +53,7 @@ export default function Payments() {
             <select className="input" required value={form.invoice_id} onChange={e=>setForm(f=>({...f, invoice_id:e.target.value}))}>
               <option value="">Select invoice</option>
               {invoices.map(inv => (
-                <option key={inv.id} value={inv.id}>#{'{'}inv.id{'}'} · ${'{'}Number(inv.amount).toFixed(2){'}'} { '{'}inv.currency{'}'} (appt { '{'}inv.appointment_id{'}'})</option>
+                <option key={inv.id} value={inv.id}>#{inv.id} · ${Number(inv.amount).toFixed(2)} {inv.currency} (appt {inv.appointment_id})</option>
               ))}
             </select>
           </div>
@@ -72,8 +72,8 @@ export default function Payments() {
         {items.map(p => (
           <div key={p.id} className="card p-4 flex items-center justify-between">
             <div>
-              <div className="font-medium">${'{'}p.amount{'}'} { '{'}p.currency{'}'}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">for invoice { '{'}p.invoice_id || '—'{'}'}</div>
+              <div className="font-medium">${p.amount} {p.currency}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">for invoice {p.invoice_id || '—'}</div>
             </div>
             <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">{p.status}</span>
           </div>
