@@ -12,6 +12,7 @@ import Services from './pages/Services'
 import Login from './pages/Login'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import Signup from './pages/Signup'
+import AboutUs from './pages/AboutUs'
 
 function PrivateRoute({ children, roles }) {
   const { user } = useAuth()
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/invoices/new/:appointmentId" element={<PrivateRoute roles={["admin"]}><InvoiceCreate /></PrivateRoute>} />
             <Route path="/invoices/:invoiceId" element={<PrivateRoute><InvoiceDetail /></PrivateRoute>} />
             <Route path="/contactus" element={<ContactUs />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/services" element={<Services />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

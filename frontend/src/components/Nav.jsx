@@ -21,6 +21,7 @@ export default function Nav() {
           )}
           <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
           <NavLink to="/contactus" className={linkClass}>Contact Us</NavLink>
+          <NavLink to="/about" className={linkClass}>About Us</NavLink>
           <NavLink to="/services" className={linkClass}>Services</NavLink>
         </nav>
         <div className="flex items-center gap-2">
