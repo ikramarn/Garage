@@ -4,14 +4,14 @@ image:
   tag: latest
 # Per-component image tags (override global image.tag when set)
 imageTags:
-  gateway: latest@sha256:420efa3386ed6f55f5fa5cccd2a0fb9908c74b8738456bfde20ae29a205ecd45
+  gateway: latest@sha256:7146d76c71a80dba097c8f900f3fdff8937189f2e09cf643634c647ff654f26a
   frontend: latest@sha256:594935e3ba44073f2081216a3fc349ae1983633a64fca18ae069c63f7080d06b
-  auth: latest@sha256:59909d7e03aaadde22cea439f8a1bea4cd1be1fc499d9aed78cd7ea59aaaade9
-  appointments: latest@sha256:2ca07491b144f83f279ceaed76038f2ca78eeaf575bb3c789db47e381644ce89
+  auth: latest@sha256:a4fb10802eb44706940b067506c2a14e282f7be3e8b33c5b71a5bc137d87b057
+  appointments: latest@sha256:ec908704c12d9b80587ca55559c80ae20b5c9e81e355dd51a88e7eed251ffbaa
   invoices: latest@sha256:5561c1c37b14a9795315354e4251c113f5e28efbc11dc3073642395be4621c31
-  payments: latest@sha256:7e0f498ee219f59bad7fd3b9c57994fd704b9f6fcb5648d15175dc4e7358c42f
-  contactus: latest@sha256:a6b96b228367bf0d3a90cb78ea694cbe7e8b240bdc9ba1913ab55c2aaa267198
-  catalog: latest@sha256:8156456b5cc6481bf691d886d985b1e749e4a628e5dea2158ee64242622023de
+  payments: latest@sha256:b06913b0c0c72f1ab1569a24a929427d19e7551e85d7fe11e67ed6022e1b70e4
+  contactus: latest@sha256:ff92ab2d389eb5895ae690ceb6bf16b086dabdf1bbac000f14f92fc980f9c433
+  catalog: latest@sha256:8fa3fd1efc646cae8c357b2c0ad3ae8aa0c894b40df2b0952e4c5d70eecc3591
 # Common env
 env:
   jwtSecret: dev-secret-change-me
