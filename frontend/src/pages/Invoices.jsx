@@ -16,14 +16,20 @@ export default function Invoices() {
   const paymentsEnabled = (import.meta.env?.VITE_PAYMENTS_ENABLED === 'true')
 
   const load = async () => {
-    try { setItems(await api('/api/invoices')) } catch (e) { setErr(e.message) }
+    try {
+      const data = await api('/api/invoices')
+      setItems(Array.isArray(data) ? data : [])
+    } catch (e) { setErr(e.message) }
   }
   useEffect(() => { load() }, [token])
 
   useEffect(() => {
     if (user?.role === 'admin') {
       (async () => {
-        try { setAppts(await api('/api/appointments')) } catch {}
+        try {
+          const data = await api('/api/appointments')
+          setAppts(Array.isArray(data) ? data : [])
+        } catch {}
       })()
     }
   }, [user])

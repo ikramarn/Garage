@@ -14,7 +14,10 @@ export default function Appointments() {
 
   const load = async () => {
     if (!user) { setItems([]); return }
-    try { setItems(await api('/api/appointments')) } catch (e) {
+    try {
+      const data = await api('/api/appointments')
+      setItems(Array.isArray(data) ? data : [])
+    } catch (e) {
       if (String(e.message).includes('401')) setErr('Please login to make an appointment.')
       else setErr(e.message)
     }
@@ -24,7 +27,10 @@ export default function Appointments() {
   useEffect(() => {
     // services are public; load once for picker
     (async () => {
-      try { setServices(await api('/api/services')) } catch {}
+      try {
+        const data = await api('/api/services')
+        setServices(Array.isArray(data) ? data : [])
+      } catch {}
     })()
   }, [])
 

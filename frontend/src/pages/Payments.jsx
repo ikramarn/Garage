@@ -25,9 +25,9 @@ export default function Payments() {
         api('/api/payments'),
         api('/api/invoices')
       ])
-      setItems(p)
+      setItems(Array.isArray(p) ? p : [])
       // If not admin, only show user's invoices (API already filters)
-      setInvoices(inv)
+      setInvoices(Array.isArray(inv) ? inv : [])
     } catch (e) { setErr(e.message) }
   }
   useEffect(() => { load() }, [])
