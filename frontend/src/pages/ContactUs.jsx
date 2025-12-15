@@ -9,7 +9,8 @@ export default function ContactUs() {
   const load = async () => {
     try {
       const data = await api('/api/contactus')
-      setItems(Array.isArray(data) ? data : [])
+      const list = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : [])
+      setItems(list)
     } catch (e) { setErr(e.message) }
   }
   useEffect(() => { load() }, [])
@@ -37,7 +38,7 @@ export default function ContactUs() {
         </form>
       </div>
       <div className="grid gap-3">
-        {items.map(m => (
+        {Array.isArray(items) && items.map(m => (
           <div key={m.id} className="card p-4">
             <div className="font-medium">{m.name} <span className="text-xs text-gray-500">({m.email})</span></div>
             <div className="text-sm text-gray-600 dark:text-gray-300">{new Date(m.created_at).toLocaleString()}</div>
