@@ -82,7 +82,7 @@ export default function Appointments() {
           <div key={a.id} className="card p-4">
             <div className="font-medium">{a.customer_name}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
-              {new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${a.service_ids.length} service(s)` : '0 services'} · ${'{'}Number(a.total_price || 0).toFixed(2){'}'}
+              {new Date(a.scheduled_at).toLocaleString()} · {Array.isArray(a.service_ids) ? `${a.service_ids.length} service(s)` : '0 services'} · ${Number(a.total_price || 0).toFixed(2)}
             </div>
             {user && user.role === 'admin' && (
               <div className="flex gap-2 mt-2">
@@ -107,12 +107,12 @@ export default function Appointments() {
                     }} />
                     <span>{s.name}</span>
                   </div>
-                  <span className="text-sm text-gray-600 dark:text-gray-300">${'{'}s.price{'}'}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">${s.price}</span>
                 </label>
               ))}
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700 dark:text-gray-200">Total: <span className="font-semibold">${'{'}form.total_price{'}'}</span></div>
+              <div className="text-sm text-gray-700 dark:text-gray-200">Total: <span className="font-semibold">${form.total_price}</span></div>
               <div className="flex gap-2">
                 <button type="button" className="btn btn-outline" onClick={() => setPickerOpen(false)}>Close</button>
                 <button type="button" className="btn btn-primary" onClick={() => setPickerOpen(false)}>Done</button>
