@@ -7,7 +7,10 @@ export default function ContactUs() {
   const [err, setErr] = useState('')
 
   const load = async () => {
-    try { setItems(await api('/api/contactus')) } catch (e) { setErr(e.message) }
+    try {
+      const data = await api('/api/contactus')
+      setItems(Array.isArray(data) ? data : [])
+    } catch (e) { setErr(e.message) }
   }
   useEffect(() => { load() }, [])
 
