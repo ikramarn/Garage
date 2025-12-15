@@ -8,7 +8,8 @@ metadata:
   annotations:
     # Allow dev tag policy for image updater
     argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/allow-tags: ^dev-.*$
+    # Allow the updater to track and write back 'latest' tag digests
+    argocd-image-updater.argoproj.io/allow-tags: ^latest$
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
