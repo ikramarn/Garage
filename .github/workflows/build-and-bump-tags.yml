@@ -57,32 +57,4 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/garage-payments:${{ env.SHA_TAG }}
 
-      - name: Install yq
-        run: |
-          sudo curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
-
-      - name: Update Helm imageTags
-        run: |
-          set -euo pipefail
-          FILE=helm/garage/values.yaml
-          echo "Updating Helm imageTags to $SHA_TAG"
-          FRONTEND_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'frontend/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'frontend/') }}
-          INVOICES_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/invoices/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/invoices/') }}
-          PAYMENTS_CHANGED=${{ contains(join(fromJSON(toJSON(github.event.commits.*.modified))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.added))), 'services/payments/') || contains(join(fromJSON(toJSON(github.event.commits.*.removed))), 'services/payments/') }}
-
-          if [ "$FRONTEND_CHANGED" = "true" ]; then
-            yq -i ".imageTags.frontend = env(SHA_TAG)" "$FILE"
-          fi
-          if [ "$INVOICES_CHANGED" = "true" ]; then
-            yq -i ".imageTags.invoices = env(SHA_TAG)" "$FILE"
-          fi
-          if [ "$PAYMENTS_CHANGED" = "true" ]; then
-            yq -i ".imageTags.payments = env(SHA_TAG)" "$FILE"
-          fi
-
-      - name: Commit and push Helm tag updates
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(helm): bump imageTags to ${{ env.SHA_TAG }}"
-          file_pattern: helm/garage/values.yaml
+      # Deploy step removed: Helm imageTags will be managed by Argo CD Image Updater (digest pinning)
