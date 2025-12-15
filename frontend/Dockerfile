@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM node:20-alpine
+ARG BUILD_ID
+LABEL org.opencontainers.image.revision="${BUILD_ID}"
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --no-audit --no-fund
