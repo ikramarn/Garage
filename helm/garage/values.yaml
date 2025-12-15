@@ -11,7 +11,7 @@ imageTags:
   invoices: latest@sha256:5561c1c37b14a9795315354e4251c113f5e28efbc11dc3073642395be4621c31
   payments: latest@sha256:9f381e2eb8fa03b45a7296b0093f0e0aeba30679bd73201ea7a3c12446cb003b
   contactus: latest@sha256:75058d2066f21a117c448625407194fcc054d8fa2320b60d3d920c628d87927b
-  catalog: latest@sha256:dd614d965d8e9956ff117cbac3d1e0ee9c63c0a0ae0ae96463abde40385fc771
+  catalog: latest@sha256:01d55e6eb28b8dbff6ff1c93ddcad7d4e2e89ec91467d3a3851deea6c43663b9
 # Common env
 env:
   jwtSecret: dev-secret-change-me
