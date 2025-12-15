@@ -78,8 +78,6 @@ jobs:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          build-args: |
-            BUILD_ID=${{ github.run_id }}-${{ github.run_attempt }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
