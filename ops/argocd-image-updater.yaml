@@ -24,6 +24,8 @@ spec:
           commonUpdateSettings:
             # Track latest and pin by digest, same as other services
             updateStrategy: "digest"
+            allowTags:
+              - "latest"
           manifestTargets:
             helm:
               name: "imageRepos.frontend"

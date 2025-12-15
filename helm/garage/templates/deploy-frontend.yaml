@@ -5,11 +5,6 @@ metadata:
   name: garage-frontend
   labels:
     {{- include "garage.labels" (dict "name" "frontend" "Release" .Release) | nindent 4 }}
-  annotations:
-    # Allow dev tag policy for image updater
-    argocd-image-updater.argoproj.io/write-back-method: git
-    # Allow the updater to track and write back 'latest' tag digests
-    argocd-image-updater.argoproj.io/allow-tags: ^latest$
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
