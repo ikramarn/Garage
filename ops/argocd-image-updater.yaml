@@ -13,6 +13,7 @@ spec:
     gitConfig:
       branch: "main"
       writeBackTarget: "helmvalues:values.images.yaml"  # write only to digest file to avoid conflicts
+      gitCommitMessage: "chore(images): bump {{alias}} to {{newTag}} ({{imageName}})"
 
   # Track the single Application named 'garage'
   applicationRefs:
