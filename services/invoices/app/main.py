@@ -231,11 +231,20 @@ def get_invoice_pdf(invoice_id: str, x_user_id: str | None = Header(default=None
         autoescape=select_autoescape(['html', 'xml'])
     )
     template = env.get_template('invoice.html')
+    # Friendly references for display (keep raw IDs in API)
+    def fmt(prefix: str, uid: str, dt: datetime | None):
+        head = (uid or "")[:8].upper()
+        date = (dt or datetime.utcnow()).strftime('%Y%m%d')
+        return f"{prefix}-{date}-{head}"
+    invoice_ref = fmt("INV", inv.id, inv.issued_at)
+    appointment_ref = fmt("APT", inv.appointment_id, inv.issued_at)
     items = list(inv.items or [])
     total = inv.amount if inv.amount is not None else sum(max(0.0, i.price) for i in items)
     html = template.render(
         invoice=inv,
         total=total,
+        invoice_ref=invoice_ref,
+        appointment_ref=appointment_ref,
         company_name=company_name,
         company_address=company_address,
         company_logo=company_logo_path if company_logo_path and os.path.exists(company_logo_path) else None,

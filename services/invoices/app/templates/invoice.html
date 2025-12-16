@@ -32,7 +32,7 @@
     </div>
     <div>
       <h2>Invoice</h2>
-      <div class="muted">Invoice ID: {{ invoice.id }}</div>
+      <div class="muted">Reference: {{ invoice_ref }}</div>
       <div class="muted">Date: {{ invoice.issued_at.strftime('%Y-%m-%d %H:%M:%S') }} UTC</div>
       <div class="muted">Status: {{ invoice.status }}</div>
     </div>
@@ -45,7 +45,7 @@
     </div>
     <div class="card">
       <div class="muted">Appointment</div>
-      <div>{{ invoice.appointment_id }}</div>
+      <div>{{ appointment_ref }}</div>
     </div>
   </div>
 

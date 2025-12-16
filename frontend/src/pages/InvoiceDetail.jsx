@@ -14,7 +14,7 @@ export default function InvoiceDetail() {
   }, [invoiceId])
 
   const printInvoice = () => {
-    window.print()
+    window.open(`/api/invoices/${invoiceId}/pdf`, '_blank')
   }
 
   const downloadPdf = async () => {
@@ -87,8 +87,8 @@ export default function InvoiceDetail() {
           </table>
         </div>
         <div className="mt-6 flex gap-2 no-print">
-          <button className="btn btn-outline" onClick={printInvoice}>Print / Download PDF</button>
-          <button className="btn btn-primary" onClick={downloadPdf}>Download PDF (server)</button>
+          <button className="btn btn-primary" onClick={printInvoice}>Open PDF (server)</button>
+          <button className="btn btn-outline" onClick={downloadPdf}>Download PDF</button>
         </div>
       </div>
     </div>
