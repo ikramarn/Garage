@@ -10,6 +10,9 @@ metadata:
     kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
     {{- end }}
 spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  {{- end }}
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
