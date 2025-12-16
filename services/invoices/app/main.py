@@ -163,6 +163,19 @@ def get_invoice(invoice_id: str, x_user_id: str | None = Header(default=None), x
             return to_model(row)
         raise HTTPException(403, "Forbidden")
 
+@app.post("/invoices/{invoice_id}/mark-paid", response_model=Invoice)
+def mark_invoice_paid(invoice_id: str, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
+    if x_user_role != "admin":
+        raise HTTPException(403, "Only admin can mark invoices as paid")
+    with SessionLocal() as s:
+        row = s.query(InvoiceRow).get(invoice_id)
+        if not row:
+            raise HTTPException(404, "Not found")
+        row.status = "Paid"
+        s.commit()
+        s.refresh(row)
+        return to_model(row)
+
 @app.get("/invoices/{invoice_id}/pdf")
 def get_invoice_pdf(invoice_id: str, x_user_id: str | None = Header(default=None), x_user_role: str | None = Header(default=None)):
     with SessionLocal() as s:
