@@ -39,6 +39,7 @@ app = FastAPI(title="Invoices Service")
 # DB setup
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://garage:garage@db:5432/garage")
 APPOINTMENTS_URL = os.getenv("APPOINTMENTS_URL", "http://appointments:8000")
+CATALOG_URL = os.getenv("CATALOG_URL", "http://catalog:8000")
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
@@ -135,7 +136,39 @@ def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(defaul
     iid = str(uuid4())
     # Admin may create invoice for a customer (owner_id required)
     target_owner = payload.owner_id if payload.owner_id else x_user_id
-    amount = payload.amount if payload.amount is not None else sum(max(0.0, i.price) for i in payload.items)
+    # Enrich items with names from catalog when missing or when description looks like an ID
+    enriched_items: List[dict] = []
+    for it in (payload.items or []):
+        desc = it.description
+        price = it.price
+        sid = it.service_id
+        needs_lookup = False
+        if not desc:
+            needs_lookup = True
+        elif sid and (desc == sid or len(desc) >= 32):
+            # Heuristic: fallback descriptions that are IDs/UUID-like tend to be long or equal to service_id
+            needs_lookup = True
+        if sid and needs_lookup:
+            try:
+                with httpx.Client(timeout=5.0) as client:
+                    sresp = client.get(f"{CATALOG_URL}/services/{sid}")
+                if sresp.status_code == 200:
+                    svc = sresp.json()
+                    desc = svc.get("name") or desc
+                    if price is None:
+                        try:
+                            price = float(svc.get("price"))
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+        enriched_items.append({
+            "description": desc if desc else (sid or ""),
+            "price": float(price) if price is not None else 0.0,
+            "service_id": sid
+        })
+    # Calculate amount if not provided
+    amount = payload.amount if payload.amount is not None else sum(max(0.0, float(i.get("price", 0))) for i in enriched_items)
     with SessionLocal() as s:
         row = InvoiceRow(
             id=iid,
@@ -144,7 +177,7 @@ def create_invoice(payload: InvoiceCreate, x_user_id: str | None = Header(defaul
             appointment_id=payload.appointment_id,
             amount=amount,
             currency=payload.currency,
-            items=[i.model_dump() for i in payload.items or []],
+            items=enriched_items,
             customer_name=payload.customer_name,
             status="unpaid",
         )
