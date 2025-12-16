@@ -69,8 +69,16 @@ async def _proxy(request: Request, service: str, tail: str = "") -> Response:
     if not base_url:
         raise HTTPException(status_code=404, detail=f"Unknown service: {service}")
 
-    # If no tail provided, use default root tail for the service when available
-    effective_tail = tail or DEFAULT_ROOT_TAIL.get(service, "")
+    # Normalize routing so both /api/{service} and /api/{service}/{tail}
+    # map to the underlying service's resource path, e.g. /appointments and /appointments/{id}
+    resource_root = DEFAULT_ROOT_TAIL.get(service, "")
+    if tail:
+        if resource_root and not tail.lstrip("/").startswith(resource_root.rstrip("/")):
+            effective_tail = f"{resource_root.rstrip('/')}/{tail.lstrip('/')}"
+        else:
+            effective_tail = tail
+    else:
+        effective_tail = resource_root
     url = base_url.rstrip("/") + "/" + effective_tail.lstrip("/")
     method = request.method
 
