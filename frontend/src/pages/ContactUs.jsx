@@ -5,6 +5,7 @@ export default function ContactUs() {
   const [items, setItems] = useState([])
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [err, setErr] = useState('')
+  const [sendStatus, setSendStatus] = useState(null) // { ok: boolean, msg: string }
 
   const load = async () => {
     try {
@@ -18,8 +19,15 @@ export default function ContactUs() {
   const submit = async (e) => {
     e.preventDefault()
     setErr('')
+    setSendStatus(null)
     try {
-      await api('/api/contactus', { method: 'POST', body: JSON.stringify(form) })
+      const res = await api('/api/contactus', { method: 'POST', body: JSON.stringify(form) })
+      if (res && typeof res.email_sent !== 'undefined') {
+        if (res.email_sent) setSendStatus({ ok: true, msg: 'Your message was sent successfully.' })
+        else setSendStatus({ ok: false, msg: 'Message saved, but email delivery failed.' })
+      } else {
+        setSendStatus({ ok: true, msg: 'Your message was sent.' })
+      }
       setForm({ name: '', email: '', message: '' })
       load()
     } catch (e) { setErr(e.message) }
@@ -35,6 +43,11 @@ export default function ContactUs() {
           <input className="input" required type="email" placeholder="Email" value={form.email} onChange={e=>setForm(f=>({...f, email:e.target.value}))} />
           <textarea className="input" rows="4" required placeholder="Message" value={form.message} onChange={e=>setForm(f=>({...f, message:e.target.value}))} />
           <button className="btn btn-primary w-fit">Send</button>
+          {sendStatus && (
+            <div className={"text-sm mt-1 " + (sendStatus.ok ? 'text-green-600' : 'text-amber-600')}>
+              {sendStatus.msg}
+            </div>
+          )}
         </form>
       </div>
       <div className="grid gap-3">

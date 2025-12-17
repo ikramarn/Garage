@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import uuid4
 from datetime import datetime
 import os
@@ -16,6 +16,10 @@ class ContactMessage(ContactMessageCreate):
     id: str
     created_at: datetime
 
+class ContactMessageResponse(ContactMessage):
+    email_sent: bool = False
+    email_error: Optional[str] = None
+
 _STORE: Dict[str, ContactMessage] = {}
 app = FastAPI(title="Contact Us Service")
 
@@ -29,35 +33,41 @@ def health():
 def list_messages():
     return list(_STORE.values())
 
-@app.post("/contactus", response_model=ContactMessage, status_code=201)
+@app.post("/contactus", response_model=ContactMessageResponse, status_code=201)
 def create_message(payload: ContactMessageCreate):
     mid = str(uuid4())
     msg = ContactMessage(id=mid, created_at=datetime.utcnow(), **payload.model_dump())
     _STORE[mid] = msg
-    return msg
-
     # Attempt to send email notification if configured
     SMTP_HOST = os.getenv("SMTP_HOST")
     SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
     SMTP_USER = os.getenv("SMTP_USER")
     SMTP_PASS = os.getenv("SMTP_PASS")
     CONTACT_NOTIFY_EMAIL = os.getenv("CONTACT_NOTIFY_EMAIL")
-
+    email_sent = False
+    email_error: Optional[str] = None
     if SMTP_HOST and CONTACT_NOTIFY_EMAIL:
         try:
             email_msg = EmailMessage()
             email_msg["Subject"] = f"New contact from {payload.name}"
             email_msg["From"] = SMTP_USER or CONTACT_NOTIFY_EMAIL
             email_msg["To"] = CONTACT_NOTIFY_EMAIL
-            email_msg.set_content(f"Name: {payload.name}\nEmail: {payload.email}\n\nMessage:\n{payload.message}")
+            email_msg.set_content(
+                f"Name: {payload.name}\nEmail: {payload.email}\n\nMessage:\n{payload.message}"
+            )
 
             with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-                server.starttls()
+                try:
+                    server.starttls()
+                except Exception:
+                    # Some servers may not support STARTTLS; continue without it
+                    pass
                 if SMTP_USER and SMTP_PASS:
                     server.login(SMTP_USER, SMTP_PASS)
                 server.send_message(email_msg)
-        except Exception:
-            # Do not fail the API if email sending fails
-            pass
+                email_sent = True
+        except Exception as e:
+            # Do not fail the API if email sending fails; report status
+            email_error = str(e)
 
-    return msg
+    return ContactMessageResponse(**msg.model_dump(), email_sent=email_sent, email_error=email_error)
