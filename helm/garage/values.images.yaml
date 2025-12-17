@@ -1,12 +1,12 @@
 imageTags:
-  gateway: latest@sha256:30232ffc4f66dd99b1408b9771de8d73e285622bf545fe678f5e72106fad1802
-  frontend: latest@sha256:6009afc3f3ce3ffed6f63171294b3c1b904c56891926938cc94779a4850bed2b
-  auth: latest@sha256:1e7cf5da677607c26278bef2882f7ea4c554739e37b1e64b29710b030d1bbc81
-  appointments: latest@sha256:705e6b6c7b984c363ec65f1ae16ab8af1975de2c637aa151a4e1f5ecb60318d4
-  invoices: latest@sha256:15d7f581108f9a49a15c9661ffdb7f9e1d86d92fe9c6e033067aaec85ba3e1ee
-  payments: latest@sha256:904da14055ea1f756a20886270ccaa77d6ba01270b62b7c492783928240024b2
-  contactus: latest@sha256:d52dab2394765ffebfed8dc1365796257f1c58bfedd996f3164f8a95dca8fd7c
-  catalog: latest@sha256:7e4e345a02feff8be738c1f881688a63b36e08226fe964de5cbb0bdce45d88c4
+  gateway: latest@sha256:7ae013629cb45aa05351c16b2c05d52747bcd1bcef1d2926a70fe8f4b8017c2a
+  frontend: latest@sha256:64401a49f23929fd7ca2e8575336efe44c5455b845902730f7d3a58fcefaf078
+  auth: latest@sha256:dfc8b4aa19cedbb3584abe83fc22710ad39e4dfeff22d172037c4755314b2580
+  appointments: latest@sha256:fad01103ec1895adb65e90db24d8e6c58d80ed18de189d432956155a4f165117
+  invoices: latest@sha256:05aaae465a7dd3d26e99ca3eae5f5ed211d43d3934c2d38e5d780515d0401536
+  payments: latest@sha256:4bde379dba9adbe187e0b5a08229b6d95f8086be6e2560bc15df433b1898f712
+  contactus: latest@sha256:0adaa381c4d101243518eba5ba69ed1187b920a81a5f20c42cf4eee6b4df3a2c
+  catalog: latest@sha256:5caf7b830adab12070647de8ee15bacda1bcb6bfd70f7c7967c7503ddb421ed0
 imageRepos:
   frontend: ghcr.io/ikramarn/garage-frontend
   gateway: ghcr.io/ikramarn/garage-gateway
