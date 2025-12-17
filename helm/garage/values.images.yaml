@@ -5,8 +5,8 @@ imageTags:
   appointments: latest@sha256:431219fadd00f2a8f6c97f29431db47fee2f5a2ca1165ec592dea8d1c40ee245
   invoices: latest@sha256:9747534118b9a4767c5089f3d730fd8f2af33ab2f28d041a74ded3522b777036
   payments: latest@sha256:1722f865f985151c3b5483a43c223e720247ced1e234762dae44fac8947a48a3
-  contactus: latest@sha256:d668ee8e35dacf6a237a42f65d2ba522eaf75a84dedd5e8b34238dd9695e6293
-  catalog: latest@sha256:a0b1c918f0eee652c06464e00e4774acc113395d2a51f5446a02d6fe938f362e
+  contactus: latest@sha256:48faf43e3b9a7a0c7dfde5c88eb4c46329ff27f17a0c31adcfec070b1131bfcd
+  catalog: latest@sha256:d3211dd36cddfdd2e0866a99d2970ecdd8453a01099abf605f578ffdc857de3d
 imageRepos:
   frontend: ghcr.io/ikramarn/garage-frontend
   gateway: ghcr.io/ikramarn/garage-gateway
