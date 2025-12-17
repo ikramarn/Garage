@@ -6,7 +6,7 @@ imageTags:
   invoices: latest@sha256:d2c313d2285e6014959365b60883d2feb0a68098235a452419fbf73f9e6234c3
   payments: latest@sha256:916ad9b19d7d81744f8ef78e9feee51d68dd6268e4ff27bef72c20eb51764cb3
   contactus: latest@sha256:70aea1c56ffccac5673d7e1c49a912a0853fc1f183c118e9cb18833fe1164140
-  catalog: latest@sha256:af7fd60b0d5e441357b2579c95d41822c43857ac29f0269bcae9e83c01d26374
+  catalog: latest@sha256:986d2b0951f4e11056da8b71224179e9d06a9cc88b8ab0ca722b03b62c77f19c
 imageRepos:
   frontend: ghcr.io/ikramarn/garage-frontend
   gateway: ghcr.io/ikramarn/garage-gateway
