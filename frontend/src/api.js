@@ -9,8 +9,14 @@ export async function api(path, options = {}) {
     const text = await res.text()
     throw new Error(`${res.status} ${res.statusText}: ${text}`)
   }
+  // No Content responses
+  if (res.status === 204 || res.status === 205) return null
   const ct = res.headers.get('content-type') || ''
-  if (ct.includes('application/json')) return res.json()
+  if (ct.includes('application/json')) {
+    // Some endpoints may return empty body with JSON content-type
+    const text = await res.text()
+    return text ? JSON.parse(text) : null
+  }
   if (ct.includes('application/pdf')) return res.blob()
   return res.text()
 }
