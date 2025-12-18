@@ -4,9 +4,9 @@ imageTags:
   auth: latest@sha256:11859f473f68f336829647f32576fd0e1bfd289d1a7ab471956b1945cda2b6e7
   appointments: latest@sha256:e2db7d10ba8efd017f6b2c0d566bd98abc6789b3dcf0a6beef83ca4aaaa92d38
   invoices: latest@sha256:360b62d8b068586338ce9690e7594c470ec73cd1f6442ff0fca915e9d9c5ac1b
-  payments: latest@sha256:bdfec2b4bfca51faef4559726d7c0f731ea5ecb627cbe92aabc78e78a9900631
-  contactus: latest@sha256:89542d77a3f0c5475997f942f3b525d40785be10e306d21aa5e03b1823a2a941
-  catalog: latest@sha256:5c359c36938dc921216ec70c83caad9a6acf5c0bf1768a83e2c800a5ddd3b547
+  payments: latest@sha256:41ae31ca5ef1f74e7f43bd97f518aa26e615f57f0d8dc0496c9bf5e489373e2a
+  contactus: latest@sha256:a659a05e32a8e91d6dc31b1d5f3dc6e1128a22ac1843832a99de56d8eda98674
+  catalog: latest@sha256:a8409f6565ce9a8183658a4c761456fecc141ec5de182f0bbc22282f82761cbe
 imageRepos:
   frontend: ghcr.io/ikramarn/garage-frontend
   gateway: ghcr.io/ikramarn/garage-gateway
