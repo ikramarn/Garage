@@ -43,6 +43,11 @@ spec:
                 configMapKeyRef:
                   name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
                   key: SMTP_PORT
+            - name: SMTP_SSL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "garage.fullname" . | default (printf "%s-env" .Release.Name) }}
+                  key: SMTP_SSL
             {{- if .Values.env.smtp.secretName }}
             - name: SMTP_USER
               valueFrom:

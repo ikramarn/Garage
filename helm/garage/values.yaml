@@ -23,6 +23,7 @@ env:
   smtp:
     host: "smtp.gmail.com"
     port: 587
+    ssl: false
     # Do NOT store creds in git. Set a Secret name and create it in the cluster.
     secretName: "smtp-credentials"
     userKey: "SMTP_USER"
