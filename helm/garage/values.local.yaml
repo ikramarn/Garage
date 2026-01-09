@@ -1,0 +1,15 @@
+# Local (Docker Desktop) deployment overrides without Kubernetes Ingress
+# Expose via NodePort and a Cloudflare Tunnel mapping to ikcloudsolutions.com
+service:
+  type: NodePort
+
+ingress:
+  enabled: false
+
+env:
+  frontendUrl: https://ikcloudsolutions.com
+
+components:
+  # Keep in-cluster Postgres for local use
+  postgres:
+    enabled: true

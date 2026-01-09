@@ -1,0 +1,24 @@
+# Production overrides for Garage deployment
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  className: nginx
+  host: ikcloudsolutions.com
+  tls:
+    enabled: true
+    secretName: ikcloudsolutions-com-tls
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+
+env:
+  frontendUrl: https://ikcloudsolutions.com
+  # Set to your managed Postgres URL if not using in-cluster Postgres
+  # Example: postgresql+psycopg2://<user>:<encoded-pass>@<rds-host>:5432/<db>?sslmode=require
+  # databaseUrl: "postgresql+psycopg2://garage:garage@db:5432/garage"
+
+components:
+  # Disable in-cluster Postgres for production if using managed DB
+  postgres:
+    enabled: false

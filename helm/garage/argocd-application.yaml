@@ -13,6 +13,7 @@ spec:
       valueFiles:
         - values.yaml
         - values.images.yaml
+        - values.prod.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: garage
